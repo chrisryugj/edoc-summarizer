@@ -17,6 +17,12 @@
   h1 { font-size: 18px; margin-bottom: 20px; }
   label { display: block; font-weight: 600; margin: 16px 0 4px; }
   .hint { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .warn {
+    font-size: 12px; line-height: 1.6; margin-top: 10px; padding: 10px 12px;
+    border: 1px solid #f0c36d; background: #fff8e6; border-radius: 8px; color: #5c4813;
+  }
+  .warn ul { margin: 6px 0 0; padding-left: 18px; }
+  .warn li + li { margin-top: 4px; }
   input, select {
     width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px;
     background: var(--bg); color: var(--fg); font: inherit;
@@ -43,6 +49,18 @@
     <option value="gemini">Gemini (Google AI)</option>
     <option value="openai">내부 LLM (OpenAI 호환)</option>
   </select>
+
+  <div class="warn" role="note">
+    <b>⚠ 문서 본문이 어디로 가는지 확인하세요.</b>
+    <ul>
+      <li><b>Gemini</b>를 고르면 요약 대상 문서의 <b>본문 전체가 Google 서버(국외)로 전송</b>됩니다.
+        개인정보가 담긴 공문서·민원 문서에는 사용하지 마세요. 업무 문서를 외부 AI 서비스에
+        보내는 것은 소속 기관의 정보보안·개인정보 처리 지침 위반일 수 있으니 먼저 확인하세요.
+        무료 등급 API는 제출한 내용이 서비스 개선에 이용될 수 있습니다.</li>
+      <li><b>내부 LLM</b>(Ollama 등)을 고르면 문서가 지정한 서버 밖으로 나가지 않습니다.
+        기관 문서에는 이쪽을 권장합니다.</li>
+    </ul>
+  </div>
 
   <label for="apiKey">API 키</label>
   <input type="password" id="apiKey" placeholder="AIza...">
