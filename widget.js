@@ -31,47 +31,31 @@
       <style>
         .orb {
           all: initial; position: relative; display: block;
-          width: 54px; height: 54px; cursor: pointer;
-          animation: float 5s ease-in-out infinite;
+          width: 52px; height: 52px; cursor: pointer;
         }
-        /* 회전하는 오로라 글로우 링 */
+        /* 은은한 오로라 글로우 — 평소엔 조용히, 호버 시 살아남 */
         .orb::before {
-          content: ''; position: absolute; inset: -5px; border-radius: 22px;
+          content: ''; position: absolute; inset: -3px; border-radius: 20px;
           background: conic-gradient(from 0deg, #2E90FA, #22D3EE, #00C2A8, #5B8DEF, #2E90FA);
-          filter: blur(11px); opacity: .65;
-          animation: spin 4s linear infinite;
-          transition: opacity .25s ease, filter .25s ease;
-        }
-        /* 숨쉬는 펄스 링 */
-        .orb::after {
-          content: ''; position: absolute; inset: 0; border-radius: 18px;
-          box-shadow: 0 0 0 0 rgba(34, 211, 238, .45);
-          animation: pulse 2.6s cubic-bezier(.4, 0, .2, 1) infinite;
+          filter: blur(9px); opacity: .28;
+          animation: spin 10s linear infinite;
+          transition: opacity .3s ease;
         }
         .core {
-          position: absolute; inset: 0; border-radius: 18px;
+          position: absolute; inset: 0; border-radius: 17px;
           background: linear-gradient(150deg, #0E3E8F 0%, #0A57D0 45%, #0891B2 100%);
           display: flex; align-items: center; justify-content: center;
-          border: 1px solid rgba(255, 255, 255, .35);
-          box-shadow: inset 0 1px 0 rgba(255, 255, 255, .3), 0 6px 18px rgba(10, 60, 140, .35);
+          border: 1px solid rgba(255, 255, 255, .3);
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, .25), 0 4px 14px rgba(10, 60, 140, .3);
           transition: transform .2s cubic-bezier(.34, 1.56, .64, 1);
         }
-        .core svg { width: 26px; height: 26px; }
-        .core .tw { transform-origin: center; animation: twinkle 2.2s ease-in-out infinite; }
-        .core .tw2 { animation-delay: 1.1s; }
-        .orb:hover::before { opacity: 1; filter: blur(14px); }
-        .orb:hover .core { transform: scale(1.09); }
-        .orb:active .core { transform: scale(.94); }
+        .core svg { width: 25px; height: 25px; }
+        .orb:hover::before { opacity: .75; }
+        .orb:hover .core { transform: scale(1.06); }
+        .orb:active .core { transform: scale(.95); }
         @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
-        @keyframes pulse {
-          0% { box-shadow: 0 0 0 0 rgba(34, 211, 238, .4); }
-          70% { box-shadow: 0 0 0 12px rgba(34, 211, 238, 0); }
-          100% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0); }
-        }
-        @keyframes twinkle { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .45; transform: scale(.8); } }
         @media (prefers-reduced-motion: reduce) {
-          .orb, .orb::before, .orb::after, .core .tw { animation: none; }
+          .orb::before { animation: none; }
         }
       </style>
       <button class="orb" title="AI 문서 요약 (드래그로 이동)">
