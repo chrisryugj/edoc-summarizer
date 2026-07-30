@@ -43,6 +43,14 @@
 옵션에서 프로바이더를 **내부 LLM (OpenAI 호환)** 으로 바꾸고 Base URL만 입력하면 됨.
 vLLM·Ollama 등 `/v1/chat/completions` 호환 서버 가정 (`llm.js:summarizeOpenAI`).
 
+### 로컬 Ollama 실측 (2026-07-30, RX 9060 8GB)
+
+- 설정: Base URL `http://localhost:11434`, API 키 불필요, 모델 비우면 `gemma4:e4b`
+- **필수**: 확장 오리진 허용 — `OLLAMA_ORIGINS=chrome-extension://*` (User 환경변수, Ollama 재시작 필요)
+- 같은 공문 요약 기준: `gemma4:e2b` 웜 18.5초 (라벨·볼드 형식 일부 미준수),
+  `gemma4:e4b` 웜 30.4초 (형식 완전 준수, 품질 우수). 첫 호출은 모델 로드로 +15초쯤
+- VRAM 8GB라 e4b(9.6GB)는 부분 CPU 오프로드 — 속도가 아쉬우면 e2b 사용
+
 ## 파일 구조
 
 | 파일 | 역할 |
