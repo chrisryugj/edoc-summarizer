@@ -82,7 +82,7 @@ async function runSummarize(tabId) {
       result: r,
       meta,
       md: buildMarkdown(r, source.title, meta),
-      fileName: `AI요약_${(r.doc_type || '문서').replace(/[\\/:*?"<>|\s]/g, '_')}_${new Date().toISOString().slice(0, 10)}.md`,
+      fileName: `AI요약_${(r.title || r.doc_type || '문서').slice(0, 40).replace(/[\\/:*?"<>|\s]/g, '_')}_${new Date().toISOString().slice(0, 10)}.md`,
       warn: source.how === '문서카드'
         ? '공문 본문(HWP)을 읽지 못해 문서카드 정보만 요약했습니다.'
           + ` [디버그: 프레임 ${frames.length}개, 하위 프레임 텍스트 길이 ${frames.filter((f) => !f.isTop).map((f) => f.bodyText?.length || 0).join('/') || '없음'}]`
@@ -100,8 +100,14 @@ async function runSummarize(tabId) {
 
 // 복사·내보내기용 마크다운 생성
 function buildMarkdown(r, title, meta) {
-  const lines = [`# [${r.doc_type || '문서'}] ${r.one_line || ''}`];
-  if (title) lines.push(`> ${title}`);
+  const lines = [`# [${r.doc_type || '문서'}] ${r.title || r.one_line || ''}`];
+  if (r.title && r.one_line) lines.push(`> ${r.one_line}`);
+  const info = [];
+  if (r.doc_no) info.push(`**문서번호**: ${r.doc_no}`);
+  if (r.sent_date) info.push(`**시행일**: ${r.sent_date}`);
+  if (r.sender) info.push(`**발신**: ${r.sender}`);
+  if (r.receiver) info.push(`**수신**: ${r.receiver}`);
+  if (info.length) lines.push('', info.join(' · '));
   if (r.deadline) lines.push(`\n**기한**: ${r.deadline}`);
   if (r.key_points?.length) lines.push('\n## 핵심 내용', ...r.key_points.map((k) => `- ${k}`));
   if (r.actions?.length) lines.push('\n## 조치 사항', ...r.actions.map((a) => `- [ ] ${a}`));
@@ -216,10 +222,15 @@ function renderOverlay(state) {
     const actPill = r.action_required
       ? '<span class="pill need">조치 필요</span>'
       : '<span class="pill ref">참고</span>';
+    const srcBits = [r.doc_no, r.sender && r.receiver ? `${r.sender} → ${r.receiver}` : r.sender || r.receiver, r.sent_date]
+      .filter(Boolean).map(esc).join(' · ');
     body = `
       <div class="card main">
         <div><span class="pill type">${esc(r.doc_type || '문서')}</span>${actPill}</div>
-        <div class="one">${esc(r.one_line)}</div>
+        ${r.title
+          ? `<div class="one">${esc(r.title)}</div><div class="sub">${esc(r.one_line)}</div>`
+          : `<div class="one">${esc(r.one_line)}</div>`}
+        ${srcBits ? `<div class="src">${srcBits}</div>` : ''}
         ${deadline}
       </div>
       <div class="card"><h2>핵심 내용</h2><ul>${list(r.key_points)}</ul></div>
@@ -284,6 +295,8 @@ function renderOverlay(state) {
       .pill.need { background: rgba(229, 72, 77, .1); color: var(--danger); margin-left: 6px; }
       .pill.ref { background: rgba(11, 27, 51, .06); color: var(--ink2); margin-left: 6px; }
       .one { font-weight: 750; font-size: 1.07em; letter-spacing: -.012em; margin-top: 10px; color: var(--ink); }
+      .sub { margin-top: 5px; font-weight: 550; font-size: .97em; color: var(--ink2); }
+      .src { margin-top: 7px; font-size: .84em; color: var(--ink3); }
       .deadline {
         margin-top: 10px; display: flex; align-items: center; gap: 6px;
         background: rgba(10, 87, 208, .07); color: var(--brand);

@@ -110,7 +110,14 @@ function render(r, source, chars) {
   $('meta').textContent = '';
   $('result').classList.remove('hidden');
 
-  const md = [`# [${r.doc_type || '문서'}] ${r.one_line || ''}`];
+  const md = [`# [${r.doc_type || '문서'}] ${r.title || r.one_line || ''}`];
+  if (r.title && r.one_line) md.push(`> ${r.one_line}`);
+  const info = [];
+  if (r.doc_no) info.push(`**문서번호**: ${r.doc_no}`);
+  if (r.sent_date) info.push(`**시행일**: ${r.sent_date}`);
+  if (r.sender) info.push(`**발신**: ${r.sender}`);
+  if (r.receiver) info.push(`**수신**: ${r.receiver}`);
+  if (info.length) md.push('', info.join(' · '));
   if (r.deadline) md.push(`\n**기한**: ${r.deadline}`);
   if (r.key_points?.length) md.push('\n## 핵심 내용', ...r.key_points.map((k) => `- ${k}`));
   if (r.actions?.length) md.push('\n## 조치 사항', ...r.actions.map((a) => `- [ ] ${a}`));
