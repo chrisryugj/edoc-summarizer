@@ -80,8 +80,8 @@ async function summarizeGemini(text, config) {
 }
 
 async function summarizeOpenAI(text, config) {
-  const base = (config.baseUrl || '').replace(/\/+$/, '');
-  if (!base) throw new Error('내부 LLM baseUrl이 설정되지 않았습니다 (옵션에서 설정).');
+  // baseUrl 미설정 시 로컬 Ollama 기본값
+  const base = (config.baseUrl || 'http://localhost:11434').replace(/\/+$/, '');
   const payload = {
     model: config.model || 'gemma4:e4b', // 로컬 Ollama 기본값
     temperature: 0.2,
