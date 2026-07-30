@@ -86,6 +86,9 @@ async function summarizeOpenAI(text, config) {
     model: config.model || 'gemma4:e4b', // 로컬 Ollama 기본값
     temperature: 0.2,
     max_tokens: 2000, // 소형 모델 출력 폭주 방지
+    // 씽킹 모델(qwen3.5 등)은 사고 토큰이 max_tokens를 다 먹고 content가 비어버림 — 사고 비활성화.
+    // 비-씽킹 모델(gemma4)과 Ollama 모두에서 무해함을 실측 확인
+    reasoning_effort: 'none',
     response_format: { type: 'json_object' },
     messages: [
       { role: 'system', content: SYSTEM_PROMPT },
@@ -103,8 +106,8 @@ async function summarizeOpenAI(text, config) {
     });
   let res = await call(payload);
   if (res.status === 400) {
-    // 일부 서버는 response_format 미지원 — 빼고 재시도 (프롬프트가 JSON을 강제함)
-    const { response_format, ...rest } = payload;
+    // 일부 서버는 response_format·reasoning_effort 미지원 — 빼고 재시도 (프롬프트가 JSON을 강제함)
+    const { response_format, reasoning_effort, ...rest } = payload;
     res = await call(rest);
   }
   if (!res.ok) {
