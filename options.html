@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>전자문서 AI 요약 — 설정</title>
+<style>
+  :root { --bg: #fff; --fg: #1a1a2e; --muted: #6b7280; --line: #d1d5db; --accent: #2563eb; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #16181d; --fg: #e5e7eb; --muted: #9ca3af; --line: #3a3f47; --accent: #60a5fa; }
+  }
+  * { box-sizing: border-box; }
+  body {
+    max-width: 520px; margin: 40px auto; padding: 0 20px;
+    font-family: 'Malgun Gothic', system-ui, sans-serif; font-size: 14px;
+    background: var(--bg); color: var(--fg); line-height: 1.6;
+  }
+  h1 { font-size: 18px; margin-bottom: 20px; }
+  label { display: block; font-weight: 600; margin: 16px 0 4px; }
+  .hint { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  input, select {
+    width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px;
+    background: var(--bg); color: var(--fg); font: inherit;
+  }
+  button {
+    margin-top: 24px; border: none; background: var(--accent); color: #fff;
+    border-radius: 8px; padding: 10px 24px; font-size: 14px; font-weight: 700; cursor: pointer;
+  }
+  #saved { color: var(--accent); margin-left: 12px; font-weight: 600; }
+  .openai-only { display: none; }
+  body.openai .openai-only { display: block; }
+</style>
+</head>
+<body>
+  <h1>⚙ 전자문서 AI 요약 — 설정</h1>
+
+  <label for="provider">LLM 프로바이더</label>
+  <select id="provider">
+    <option value="gemini">Gemini (Google AI)</option>
+    <option value="openai">내부 LLM (OpenAI 호환)</option>
+  </select>
+
+  <label for="apiKey">API 키</label>
+  <input type="password" id="apiKey" placeholder="AIza...">
+  <div class="hint">Gemini 키 발급: aistudio.google.com/apikey · 내부 LLM은 필요 시에만 입력</div>
+
+  <label for="model">모델</label>
+  <input type="text" id="model" placeholder="gemini-flash-latest">
+  <div class="hint">비워두면 gemini-flash-latest (내부 LLM은 서버 기본 모델)</div>
+
+  <div class="openai-only">
+    <label for="baseUrl">내부 LLM Base URL</label>
+    <input type="text" id="baseUrl" placeholder="http://내부서버:8000">
+    <div class="hint">OpenAI 호환 API 주소 (뒤에 /v1/chat/completions 자동 부착)</div>
+  </div>
+
+  <button id="saveBtn">저장</button><span id="saved"></span>
+
+  <script src="options.js"></script>
+</body>
+</html>
