@@ -44,8 +44,9 @@
   <div class="hint">Gemini 키 발급: aistudio.google.com/apikey · 내부 LLM은 필요 시에만 입력</div>
 
   <label for="model">모델</label>
-  <input type="text" id="model" placeholder="gemini-flash-latest">
-  <div class="hint">Gemini 기본: gemini-flash-latest · 내부 LLM 기본: gemma4:e4b (또는 gemma4:e2b)</div>
+  <select id="model"></select>
+  <input type="text" id="modelCustom" placeholder="모델명 직접 입력 (예: gemma4:e2b)" style="display:none; margin-top:6px;">
+  <div class="hint" id="modelHint">내부 LLM은 서버에서 설치된 모델 목록을 자동으로 불러옵니다</div>
 
   <div class="openai-only">
     <label for="baseUrl">내부 LLM Base URL</label>
