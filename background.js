@@ -197,7 +197,7 @@ function renderOverlay(state) {
 
   let body = '';
   const hasResult = !!state.result;
-  if (state.status) body = `<div class="status">${esc(state.status)}</div>`;
+  if (state.status) body = `<div class="status"><span class="spin"></span>${esc(state.status)}</div>`;
   else if (state.error) body = `<div class="status error">${esc(state.error)}</div>`;
   else if (hasResult) {
     const r = state.result;
@@ -233,55 +233,110 @@ function renderOverlay(state) {
     <style>
       .panel {
         all: initial; display: block; box-sizing: border-box;
-        width: 408px; max-height: 84vh; overflow-y: auto;
-        background: #F4F5F6; color: #1E2124; border: 1px solid #CDD1D5; border-radius: 16px;
-        box-shadow: 0 12px 40px rgba(0, 54, 117, .25);
+        --ink: #0B1B33; --ink2: #3D4E66; --ink3: #7C8AA0;
+        --line: rgba(11, 27, 51, .07);
+        --brand: #0A57D0; --teal: #00B8A9;
+        --grad: linear-gradient(120deg, #0A57D0, #0891B2 55%, #00B8A9);
+        --danger: #E5484D;
+        width: 412px; max-height: 84vh; overflow-y: auto;
+        background: rgba(248, 250, 253, .92);
+        backdrop-filter: blur(16px) saturate(1.5); -webkit-backdrop-filter: blur(16px) saturate(1.5);
+        color: var(--ink); border: 1px solid rgba(11, 27, 51, .09); border-radius: 18px;
+        box-shadow: 0 1px 2px rgba(11, 27, 51, .06), 0 24px 64px -16px rgba(11, 27, 51, .38);
         font-family: 'Pretendard GovKR', Pretendard, 'Malgun Gothic', system-ui, sans-serif;
-        font-size: ${fontSize}px; line-height: 1.6;
+        font-size: ${fontSize}px; line-height: 1.62;
         word-break: keep-all; overflow-wrap: break-word;
+        animation: enter .38s cubic-bezier(.21, 1.02, .55, 1);
       }
-      .panel::-webkit-scrollbar { width: 6px; }
-      .panel::-webkit-scrollbar-thumb { background: #CDD1D5; border-radius: 3px; }
+      @keyframes enter { from { opacity: 0; transform: translateY(12px) scale(.97); } }
+      @media (prefers-reduced-motion: reduce) { .panel { animation: none; } }
+      .panel::-webkit-scrollbar { width: 5px; }
+      .panel::-webkit-scrollbar-thumb { background: rgba(11, 27, 51, .16); border-radius: 3px; }
       .head {
-        display: flex; align-items: center; gap: 2px; padding: 12px 12px 8px 16px;
-        position: sticky; top: 0; background: #F4F5F6; z-index: 1;
-        border-bottom: 1px solid #E6E8EA; cursor: grab; user-select: none; border-radius: 16px 16px 0 0;
+        display: flex; align-items: center; gap: 1px; padding: 13px 12px 11px 16px;
+        position: sticky; top: 0; z-index: 1;
+        background: rgba(248, 250, 253, .88); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+        border-bottom: 1px solid var(--line); cursor: grab; user-select: none; border-radius: 18px 18px 0 0;
       }
       .head:active { cursor: grabbing; }
-      .head .t { font-weight: 800; font-size: 15px; color: #003675; flex: 1; }
-      .tbtn {
-        all: initial; cursor: pointer; font-family: inherit; font-size: 12px; font-weight: 600;
-        color: #58616A; padding: 5px 7px; border-radius: 6px; line-height: 1; white-space: nowrap;
+      .logo {
+        width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; flex: none;
+        background: var(--grad); box-shadow: 0 0 8px rgba(8, 145, 178, .55);
       }
-      .tbtn:hover { background: #E6E8EA; color: #1E2124; }
-      .bodywrap { display: flex; flex-direction: column; gap: 10px; padding: 12px 14px 14px; }
-      .card { background: #fff; border: 1px solid #E6E8EA; border-radius: 12px; padding: 13px 15px; }
-      .pill { display: inline-block; border-radius: 999px; padding: 3px 12px; font-weight: 700; font-size: .86em; }
-      .pill.type { background: #246BEB; color: #fff; }
-      .pill.need { background: #FDEFEF; color: #E71825; margin-left: 6px; }
-      .pill.ref { background: #E6E8EA; color: #58616A; margin-left: 6px; }
-      .one { font-weight: 700; font-size: 1.04em; margin-top: 9px; color: #1E2124; }
-      .deadline { margin-top: 9px; background: #ECF2FE; color: #246BEB; border-radius: 8px; padding: 6px 10px; font-weight: 600; }
-      .deadline.urgent { background: #FDEFEF; color: #E71825; }
-      h2 { font-size: .88em; color: #246BEB; font-weight: 800; margin: 0 0 7px; }
+      .head .t { font-weight: 800; font-size: 14px; letter-spacing: -.01em; color: var(--ink); flex: 1; }
+      .tbtn {
+        all: initial; cursor: pointer; font-family: inherit; font-size: 11.5px; font-weight: 650;
+        color: var(--ink3); padding: 6px 8px; border-radius: 8px; line-height: 1; white-space: nowrap;
+        transition: background .15s ease, color .15s ease;
+      }
+      .tbtn:hover { background: rgba(11, 27, 51, .06); color: var(--ink); }
+      .tbtn:active { background: rgba(11, 27, 51, .1); }
+      .bodywrap { display: flex; flex-direction: column; gap: 10px; padding: 13px 14px 15px; }
+      .card {
+        background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px;
+        box-shadow: 0 1px 2px rgba(11, 27, 51, .04), 0 10px 28px -18px rgba(11, 27, 51, .18);
+      }
+      .card.main { position: relative; overflow: hidden; }
+      .card.main::before {
+        content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--grad);
+      }
+      .pill { display: inline-block; border-radius: 999px; padding: 3.5px 12px; font-weight: 700; font-size: .84em; letter-spacing: .01em; }
+      .pill.type { background: var(--grad); color: #fff; box-shadow: 0 2px 8px rgba(10, 87, 208, .3); }
+      .pill.need { background: rgba(229, 72, 77, .1); color: var(--danger); margin-left: 6px; }
+      .pill.ref { background: rgba(11, 27, 51, .06); color: var(--ink2); margin-left: 6px; }
+      .one { font-weight: 750; font-size: 1.07em; letter-spacing: -.012em; margin-top: 10px; color: var(--ink); }
+      .deadline {
+        margin-top: 10px; display: flex; align-items: center; gap: 6px;
+        background: rgba(10, 87, 208, .07); color: var(--brand);
+        border-radius: 10px; padding: 7px 11px; font-weight: 650; font-size: .95em;
+      }
+      .deadline.urgent { background: rgba(229, 72, 77, .09); color: var(--danger); position: relative; overflow: hidden; }
+      .deadline.urgent::after {
+        content: ''; position: absolute; inset: 0;
+        background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, .5) 50%, transparent 60%);
+        animation: shimmer 2.8s ease-in-out infinite;
+      }
+      @keyframes shimmer { 0% { transform: translateX(-100%); } 55%, 100% { transform: translateX(100%); } }
+      h2 {
+        display: flex; align-items: center; gap: 7px; margin: 0 0 8px;
+        font-size: .8em; font-weight: 750; letter-spacing: .05em; color: var(--ink3);
+      }
+      h2::before { content: ''; width: 3px; height: 11px; border-radius: 2px; background: var(--grad); }
+      .act h2::before { background: linear-gradient(180deg, #12B76A, #00B8A9); }
+      .warn h2::before { background: var(--danger); }
+      .warn h2 { color: var(--danger); }
       ul { margin: 0; padding: 0; list-style: none; }
-      li { padding-left: 13px; position: relative; margin-bottom: 6px; color: #464C53; }
-      li::before { content: ''; position: absolute; left: 0; top: .62em; width: 5px; height: 5px; border-radius: 50%; background: #246BEB; }
-      li b { color: #1E2124; }
-      .act h2 { color: #008A1E; } .act li::before { background: #008A1E; }
-      .warn { background: #FDF7F7; border-color: #F5C4C8; }
-      .warn h2 { color: #E71825; } .warn li::before { background: #E71825; }
-      .notice { background: #FFF8E9; color: #9A6A00; border-radius: 10px; padding: 7px 11px; font-size: .9em; }
-      .meta { color: #8A949E; font-size: .82em; padding: 0 4px; }
-      .status { padding: 10px 16px 14px; color: #58616A; }
-      .status.error { color: #E71825; word-break: break-all; }
+      li { padding-left: 14px; position: relative; margin-bottom: 7px; color: var(--ink2); }
+      li:last-child { margin-bottom: 0; }
+      li::before {
+        content: ''; position: absolute; left: 0; top: .58em; width: 5px; height: 5px;
+        border-radius: 50%; background: linear-gradient(135deg, #0A57D0, #0891B2);
+      }
+      li b { color: var(--ink); font-weight: 700; }
+      .act li::before { background: #12B76A; }
+      .warn { background: #FFFBFB; border-color: rgba(229, 72, 77, .18); }
+      .warn li { color: #A63A3E; }
+      .warn li::before { background: var(--danger); }
+      .notice { background: rgba(245, 166, 35, .1); color: #8A5A00; border-radius: 10px; padding: 8px 12px; font-size: .88em; }
+      .meta { color: var(--ink3); font-size: .8em; padding: 0 4px; opacity: .85; }
+      .status { display: flex; align-items: center; gap: 9px; padding: 14px 18px 16px; color: var(--ink2); }
+      .status.error { color: var(--danger); word-break: break-all; }
+      .spin {
+        width: 14px; height: 14px; flex: none; border-radius: 50%;
+        background: conic-gradient(from 0deg, transparent 15%, #0A57D0, #00B8A9);
+        -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 2.5px));
+        mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 2.5px));
+        animation: rot .8s linear infinite;
+      }
+      @keyframes rot { to { transform: rotate(360deg); } }
     </style>
     <div class="panel">
       <div class="head" id="dragHandle">
-        <span class="t">✨ AI 문서 요약</span>
+        <span class="logo"></span>
+        <span class="t">AI 문서 요약</span>
         ${hasResult ? `
-          <button class="tbtn" id="bCopy" title="요약 복사">📋 복사</button>
-          <button class="tbtn" id="bExport" title="마크다운(.md)으로 저장">⬇ 저장</button>
+          <button class="tbtn" id="bCopy" title="요약 복사">복사</button>
+          <button class="tbtn" id="bExport" title="마크다운(.md)으로 저장">저장</button>
           <button class="tbtn" id="bMinus" title="글자 작게">가−</button>
           <button class="tbtn" id="bPlus" title="글자 크게">가＋</button>` : ''}
         <button class="tbtn" id="bRerun" title="다시 요약">↻</button>
@@ -298,7 +353,7 @@ function renderOverlay(state) {
       try {
         await navigator.clipboard.writeText(state.md || '');
         $('bCopy').textContent = '✓ 복사됨';
-        setTimeout(() => { const b = $('bCopy'); if (b) b.textContent = '📋 복사'; }, 1500);
+        setTimeout(() => { const b = $('bCopy'); if (b) b.textContent = '복사'; }, 1500);
       } catch {
         $('bCopy').textContent = '복사 실패';
       }
