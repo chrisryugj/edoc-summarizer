@@ -32,6 +32,9 @@ async function runSummarize(tabId) {
       args: [state],
     });
 
+  // MV3 서비스워커는 30초 유휴 시 종료됨 — 로컬 LLM처럼 30초 넘는 요청 중에 워커가 죽으면
+  // 연결이 끊긴다(실측: Ollama 요청이 정확히 30.0s에 500). 주기적 API 호출로 수명 연장.
+  const keepalive = setInterval(() => chrome.runtime.getPlatformInfo(() => {}), 20000);
   try {
     const config = await chrome.storage.sync.get(['provider', 'apiKey', 'model', 'baseUrl']);
     if (!config.apiKey && (config.provider || 'gemini') === 'gemini') {
@@ -93,6 +96,8 @@ async function runSummarize(tabId) {
       func: renderOverlay,
       args: [{ error: '요약 실패: ' + e.message }],
     }).catch(() => {});
+  } finally {
+    clearInterval(keepalive);
   }
 }
 

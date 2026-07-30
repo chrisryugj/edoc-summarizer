@@ -85,6 +85,7 @@ async function summarizeOpenAI(text, config) {
   const payload = {
     model: config.model || 'gemma4:e4b', // 로컬 Ollama 기본값
     temperature: 0.2,
+    max_tokens: 2000, // 소형 모델 출력 폭주 방지
     response_format: { type: 'json_object' },
     messages: [
       { role: 'system', content: SYSTEM_PROMPT },
