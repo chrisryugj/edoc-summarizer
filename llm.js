@@ -82,22 +82,30 @@ async function summarizeGemini(text, config) {
 async function summarizeOpenAI(text, config) {
   const base = (config.baseUrl || '').replace(/\/+$/, '');
   if (!base) throw new Error('내부 LLM baseUrl이 설정되지 않았습니다 (옵션에서 설정).');
-  const res = await fetch(`${base}/v1/chat/completions`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(config.apiKey ? { Authorization: `Bearer ${config.apiKey}` } : {}),
-    },
-    body: JSON.stringify({
-      model: config.model || 'default',
-      temperature: 0.2,
-      response_format: { type: 'json_object' },
-      messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
-        { role: 'user', content: text },
-      ],
-    }),
-  });
+  const payload = {
+    model: config.model || 'gemma4:e4b', // 로컬 Ollama 기본값
+    temperature: 0.2,
+    response_format: { type: 'json_object' },
+    messages: [
+      { role: 'system', content: SYSTEM_PROMPT },
+      { role: 'user', content: text },
+    ],
+  };
+  const call = (body) =>
+    fetch(`${base}/v1/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(config.apiKey ? { Authorization: `Bearer ${config.apiKey}` } : {}),
+      },
+      body: JSON.stringify(body),
+    });
+  let res = await call(payload);
+  if (res.status === 400) {
+    // 일부 서버는 response_format 미지원 — 빼고 재시도 (프롬프트가 JSON을 강제함)
+    const { response_format, ...rest } = payload;
+    res = await call(rest);
+  }
   if (!res.ok) {
     const body = await res.text();
     throw new Error(`LLM API ${res.status}: ${body.slice(0, 300)}`);

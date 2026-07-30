@@ -45,12 +45,12 @@
 
   <label for="model">모델</label>
   <input type="text" id="model" placeholder="gemini-flash-latest">
-  <div class="hint">비워두면 gemini-flash-latest (내부 LLM은 서버 기본 모델)</div>
+  <div class="hint">Gemini 기본: gemini-flash-latest · 내부 LLM 기본: gemma4:e4b (또는 gemma4:e2b)</div>
 
   <div class="openai-only">
     <label for="baseUrl">내부 LLM Base URL</label>
-    <input type="text" id="baseUrl" placeholder="http://내부서버:8000">
-    <div class="hint">OpenAI 호환 API 주소 (뒤에 /v1/chat/completions 자동 부착)</div>
+    <input type="text" id="baseUrl" placeholder="http://localhost:11434">
+    <div class="hint">OpenAI 호환 API 주소 (뒤에 /v1/chat/completions 자동 부착). 로컬 Ollama는 http://localhost:11434 — API 키 불필요</div>
   </div>
 
   <button id="saveBtn">저장</button><span id="saved"></span>
