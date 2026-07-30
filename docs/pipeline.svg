@@ -23,7 +23,7 @@
     <circle cx="49" cy="200" r="2" fill="#0A57D0"/><text x="58" y="204">팝업창(툴바 없음)도 동작</text>
   </g>
 
-  <path d="M232 150l16-8v5h10v6h-10v5z" fill="#B9C4D6"/>
+  <path d="M258 150l-16-8v5h-10v6h10v5z" fill="#B9C4D6"/>
 
   <!-- STEP 2: 본문 자동 추출 -->
   <rect x="266" y="44" width="200" height="212" rx="14" fill="#FFFFFF" stroke="#E2E7EF" filter="url(#sh)"/>
@@ -43,7 +43,7 @@
   <rect x="286" y="230" width="128" height="18" rx="9" fill="#E6F5F3"/>
   <text x="350" y="243" font-size="10.5" font-weight="700" fill="#0E8074" text-anchor="middle">웹한글 캔버스 대응</text>
 
-  <path d="M474 150l16-8v5h10v6h-10v5z" fill="#B9C4D6"/>
+  <path d="M500 150l-16-8v5h-10v6h10v5z" fill="#B9C4D6"/>
 
   <!-- STEP 3: AI 분석 -->
   <rect x="508" y="44" width="200" height="212" rx="14" fill="#FFFFFF" stroke="#E2E7EF" filter="url(#sh)"/>
@@ -64,7 +64,7 @@
   <rect x="528" y="230" width="150" height="18" rx="9" fill="#E6F5F3"/>
   <text x="603" y="243" font-size="10.5" font-weight="700" fill="#0E8074" text-anchor="middle">로컬 모드: 외부 전송 없음</text>
 
-  <path d="M716 150l16-8v5h10v6h-10v5z" fill="#B9C4D6"/>
+  <path d="M742 150l-16-8v5h-10v6h10v5z" fill="#B9C4D6"/>
 
   <!-- STEP 4: 결과 카드 -->
   <rect x="750" y="44" width="146" height="212" rx="14" fill="#FFFFFF" stroke="#E2E7EF" filter="url(#sh)"/>
