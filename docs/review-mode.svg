@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="520" viewBox="0 0 880 520" font-family="'Segoe UI','Malgun Gothic','Apple SD Gothic Neo',sans-serif">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="0.4">
+      <stop offset="0" stop-color="#0A57D0"/><stop offset="0.55" stop-color="#0891B2"/><stop offset="1" stop-color="#00B8A9"/>
+    </linearGradient>
+    <filter id="sh" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="8" stdDeviation="14" flood-color="#0B1B33" flood-opacity="0.18"/>
+    </filter>
+  </defs>
+
+  <rect x="0" y="0" width="880" height="520" rx="16" fill="#EEF1F6"/>
+
+  <!-- 검토 패널 -->
+  <rect x="90" y="38" width="440" height="444" rx="16" fill="#F9FBFE" stroke="#DCE2EC" filter="url(#sh)"/>
+  <circle cx="110" cy="61" r="5" fill="url(#g)"/>
+  <text x="122" y="66" font-size="13.5" font-weight="800" fill="#0B1B33">AI 결재 검토</text>
+  <g font-size="11" fill="#7C8AA0">
+    <text x="290" y="65">복사</text><text x="326" y="65">저장</text>
+    <text x="362" y="65">가−</text><text x="392" y="65">가＋</text>
+    <text x="424" y="65">요약</text>
+  </g>
+  <rect x="452" y="49" width="38" height="22" rx="7" fill="#E3ECFB"/>
+  <text x="471" y="64" font-size="11" font-weight="700" fill="#0A57D0" text-anchor="middle">검토</text>
+  <text x="498" y="65" font-size="11" fill="#7C8AA0">↻</text>
+  <text x="516" y="65" font-size="11" fill="#7C8AA0">✕</text>
+  <line x1="90" y1="84" x2="530" y2="84" stroke="#E8EBF1"/>
+
+  <!-- 판정 카드 -->
+  <rect x="104" y="96" width="412" height="106" rx="12" fill="#FFFFFF" stroke="#E8EBF1"/>
+  <rect x="104" y="96" width="412" height="4" rx="2" fill="url(#g)"/>
+  <rect x="120" y="112" width="176" height="24" rx="12" fill="#FDF3E3"/>
+  <text x="208" y="129" font-size="12" font-weight="750" fill="#B45309" text-anchor="middle">일부 보완 후 결재 권장</text>
+  <text x="120" y="160" font-size="12" fill="#3D4E66">행사 운영 용역 계약 기안 — 목적·범위 명확,</text>
+  <text x="120" y="180" font-size="12" fill="#3D4E66">예산 산출 근거·일정 보완 필요</text>
+
+  <!-- 잘 작성된 부분 -->
+  <rect x="104" y="214" width="412" height="60" rx="12" fill="#FFFFFF" stroke="#E8EBF1"/>
+  <rect x="120" y="227" width="3" height="12" rx="1.5" fill="#12B76A"/>
+  <text x="130" y="237" font-size="11" font-weight="750" fill="#7C8AA0" letter-spacing="0.06em">잘 작성된 부분</text>
+  <rect x="120" y="245" width="62" height="18" rx="5" fill="#E6F5F3"/>
+  <text x="151" y="258" font-size="10.5" font-weight="700" fill="#0E9F6E" text-anchor="middle">추진근거</text>
+  <text x="192" y="259" font-size="12" fill="#3D4E66">조례·기본계획 인용 구체적</text>
+
+  <!-- 보완이 필요한 부분 -->
+  <rect x="104" y="286" width="412" height="88" rx="12" fill="#FFFFFF" stroke="#E8EBF1"/>
+  <rect x="120" y="299" width="3" height="12" rx="1.5" fill="url(#g)"/>
+  <text x="130" y="309" font-size="11" font-weight="750" fill="#7C8AA0" letter-spacing="0.06em">보완이 필요한 부분</text>
+  <rect x="120" y="317" width="62" height="18" rx="5" fill="#E7EFFB"/>
+  <text x="151" y="330" font-size="10.5" font-weight="700" fill="#0A57D0" text-anchor="middle">산출근거</text>
+  <text x="192" y="331" font-size="12" fill="#3D4E66">총액만 제시, <tspan font-weight="750" fill="#0B1B33">항목별 내역</tspan> 필요</text>
+  <rect x="120" y="341" width="62" height="18" rx="5" fill="#E7EFFB"/>
+  <text x="151" y="354" font-size="10.5" font-weight="700" fill="#0A57D0" text-anchor="middle">추진일정</text>
+  <text x="192" y="355" font-size="12" fill="#3D4E66">계약~행사일 준비기간 촉박</text>
+
+  <!-- 결재 전 확인사항 -->
+  <rect x="104" y="386" width="412" height="62" rx="12" fill="#FFF7F7" stroke="#F3D8D9"/>
+  <rect x="120" y="399" width="3" height="12" rx="1.5" fill="#E5484D"/>
+  <text x="130" y="409" font-size="11" font-weight="750" fill="#E5484D" letter-spacing="0.06em">결재 전 확인사항</text>
+  <rect x="120" y="417" width="62" height="18" rx="5" fill="#FBE9EA"/>
+  <text x="151" y="430" font-size="10.5" font-weight="700" fill="#E5484D" text-anchor="middle">예산협의</text>
+  <text x="192" y="431" font-size="12" fill="#A63A3E">예산부서 사전협의 완료 여부 확인 필요</text>
+
+  <!-- 콜아웃 -->
+  <g stroke="#97A3B8" stroke-dasharray="3 3" fill="none">
+    <path d="M496 60 L560 60"/>
+    <path d="M300 124 L560 138"/>
+    <path d="M520 330 L560 316"/>
+  </g>
+  <circle cx="496" cy="60" r="3" fill="#97A3B8"/>
+  <circle cx="300" cy="124" r="3" fill="#97A3B8"/>
+  <circle cx="520" cy="330" r="3" fill="#97A3B8"/>
+
+  <text x="572" y="56" font-size="13.5" font-weight="750" fill="#0B1B33">요약 ↔ 검토 원클릭 전환</text>
+  <text x="572" y="76" font-size="11.5" fill="#7C8AA0">결과는 복사하거나 .md 파일로 저장</text>
+
+  <text x="572" y="134" font-size="13.5" font-weight="750" fill="#0B1B33">결재 가능 여부 4단계 판정</text>
+  <text x="572" y="154" font-size="11.5" fill="#7C8AA0">결재 가능 / 보완 후 권장 / 확인 필요 / 재검토</text>
+
+  <text x="572" y="312" font-size="13.5" font-weight="750" fill="#0B1B33">원문 근거로만 항목별 검토</text>
+  <text x="572" y="332" font-size="11.5" fill="#7C8AA0">잘된 점 · 보완점 · 확인사항 분리, 과장 금지</text>
+  <text x="572" y="350" font-size="11.5" fill="#7C8AA0">금액·수량·기간의 본문 내 일치 여부 점검</text>
+</svg>

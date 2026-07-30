@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "전자문서 AI 요약",
-  "version": "0.1.0",
-  "description": "전자문서 본문을 추출해 LLM으로 요약합니다. 문서 종류·핵심 내용·조치사항을 한눈에.",
+  "version": "0.2.0",
+  "description": "전자문서 본문을 추출해 LLM으로 요약·검토합니다. 문서 종류·핵심 내용·조치사항을 한눈에.",
   "action": {
     "default_popup": "popup.html",
     "default_title": "전자문서 AI 요약"
@@ -13,7 +13,7 @@
   "host_permissions": ["<all_urls>"],
   "content_scripts": [
     {
-      "matches": ["https://*.cseoul.go.kr/*"],
+      "matches": ["http://*/*", "https://*/*"],
       "js": ["widget.js"],
       "run_at": "document_idle"
     }

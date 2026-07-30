@@ -1,3 +1,5 @@
+import { testConnection } from './llm.js';
+
 const $ = (id) => document.getElementById(id);
 
 const GEMINI_MODELS = ['gemini-flash-latest', 'gemini-pro-latest'];
@@ -56,10 +58,11 @@ function syncCustomUI() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-  const c = await chrome.storage.sync.get(['provider', 'apiKey', 'model', 'baseUrl']);
+  const c = await chrome.storage.sync.get(['provider', 'apiKey', 'model', 'baseUrl', 'widgetHosts']);
   $('provider').value = c.provider || 'gemini';
   $('apiKey').value = c.apiKey || '';
   $('baseUrl').value = c.baseUrl || '';
+  $('widgetHosts').value = (c.widgetHosts || []).join(', ');
   syncProviderUI();
   await loadModels(c.model || '');
 });
@@ -73,6 +76,27 @@ $('baseUrl').addEventListener('change', () => {
 });
 $('model').addEventListener('change', syncCustomUI);
 
+// 저장 전에 현재 폼 값으로 실제 왕복 확인 (모델 목록 + 초소형 챗 호출)
+$('testBtn').addEventListener('click', async () => {
+  const model = $('model').value === CUSTOM ? $('modelCustom').value.trim() : $('model').value;
+  const config = {
+    provider: $('provider').value,
+    apiKey: $('apiKey').value.trim(),
+    model,
+    baseUrl: $('baseUrl').value.trim(),
+  };
+  const out = $('testResult');
+  out.textContent = '연결 확인 중…';
+  $('testBtn').disabled = true;
+  try {
+    out.textContent = '✓ ' + (await testConnection(config));
+  } catch (e) {
+    out.textContent = '✗ ' + e.message;
+  } finally {
+    $('testBtn').disabled = false;
+  }
+});
+
 $('saveBtn').addEventListener('click', async () => {
   const model = $('model').value === CUSTOM ? $('modelCustom').value.trim() : $('model').value;
   await chrome.storage.sync.set({
@@ -80,6 +104,8 @@ $('saveBtn').addEventListener('click', async () => {
     apiKey: $('apiKey').value.trim(),
     model,
     baseUrl: $('baseUrl').value.trim(),
+    // 플로팅 버튼 표시 그룹웨어 호스트 (빈 배열이면 widget.js가 기본값 사용)
+    widgetHosts: $('widgetHosts').value.split(/[,\s]+/).map((s) => s.trim()).filter(Boolean),
   });
   $('saved').textContent = '저장됨 ✓';
   setTimeout(() => ($('saved').textContent = ''), 2000);

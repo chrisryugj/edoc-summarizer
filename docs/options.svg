@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="740" height="520" viewBox="0 0 740 520" font-family="'Segoe UI','Malgun Gothic','Apple SD Gothic Neo',sans-serif">
+  <defs>
+    <filter id="sh" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="6" stdDeviation="12" flood-color="#0B1B33" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+
+  <rect x="0" y="0" width="740" height="520" rx="16" fill="#EEF1F6"/>
+  <rect x="20" y="16" width="700" height="488" rx="14" fill="#FFFFFF" stroke="#DCE2EC" filter="url(#sh)"/>
+
+  <text x="60" y="66" font-size="16.5" font-weight="750" fill="#0B1B33">⚙ 전자문서 AI 요약 — 설정</text>
+  <rect x="470" y="44" width="210" height="30" rx="15" fill="#E6F5F3"/>
+  <text x="575" y="64" font-size="11.5" font-weight="700" fill="#0E8074" text-anchor="middle">🔒 로컬 모드: 문서 외부 전송 없음</text>
+
+  <!-- 프로바이더 -->
+  <text x="60" y="110" font-size="12.5" font-weight="700" fill="#0B1B33">LLM 프로바이더</text>
+  <rect x="60" y="120" width="440" height="38" rx="8" fill="#FFFFFF" stroke="#C9D1DD"/>
+  <text x="74" y="144" font-size="12.5" fill="#0B1B33">내부 LLM (OpenAI 호환)</text>
+  <path d="M478 135l6 8 6-8z" fill="#7C8AA0"/>
+
+  <!-- API 키 -->
+  <text x="60" y="192" font-size="12.5" font-weight="700" fill="#0B1B33">API 키</text>
+  <rect x="60" y="202" width="440" height="38" rx="8" fill="#FFFFFF" stroke="#C9D1DD"/>
+  <text x="74" y="228" font-size="13" fill="#7C8AA0" letter-spacing="0.15em">••••••••••</text>
+  <text x="60" y="258" font-size="11" fill="#7C8AA0">내부 LLM은 필요 시에만 입력 (로컬 Ollama는 불필요)</text>
+
+  <!-- 모델 -->
+  <text x="60" y="292" font-size="12.5" font-weight="700" fill="#0B1B33">모델</text>
+  <rect x="60" y="302" width="440" height="38" rx="8" fill="#FFFFFF" stroke="#C9D1DD"/>
+  <text x="74" y="326" font-size="12.5" fill="#0B1B33">gemma4:e4b</text>
+  <path d="M478 317l6 8 6-8z" fill="#7C8AA0"/>
+  <text x="60" y="358" font-size="11" fill="#7C8AA0">http://localhost:11434 서버의 설치 모델 4개 — /v1/models 자동 조회</text>
+
+  <!-- Base URL -->
+  <text x="60" y="392" font-size="12.5" font-weight="700" fill="#0B1B33">내부 LLM Base URL</text>
+  <rect x="60" y="402" width="440" height="38" rx="8" fill="#FFFFFF" stroke="#C9D1DD"/>
+  <text x="74" y="426" font-size="12.5" fill="#3D4E66">http://localhost:11434</text>
+
+  <!-- 버튼 -->
+  <rect x="60" y="458" width="86" height="38" rx="8" fill="#2563EB"/>
+  <text x="103" y="482" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle">저장</text>
+  <rect x="154" y="458" width="112" height="38" rx="8" fill="none" stroke="#2563EB" stroke-width="1.5"/>
+  <text x="210" y="482" font-size="13" font-weight="700" fill="#2563EB" text-anchor="middle">연결 테스트</text>
+  <text x="282" y="482" font-size="12.5" font-weight="700" fill="#0E9F6E">✓ 연결 성공 — 설치 모델 4개, gemma4:e4b → OK 응답 확인</text>
+
+  <!-- 우측 모델 드롭다운 미리보기 -->
+  <rect x="530" y="286" width="180" height="150" rx="10" fill="#FFFFFF" stroke="#DCE2EC" filter="url(#sh)"/>
+  <rect x="538" y="296" width="164" height="28" rx="6" fill="#E7EFFB"/>
+  <text x="550" y="315" font-size="12" font-weight="700" fill="#0A57D0">gemma4:e4b</text>
+  <text x="550" y="347" font-size="12" fill="#3D4E66">qwen3.5:9b</text>
+  <text x="550" y="375" font-size="12" fill="#3D4E66">gemma4:e2b</text>
+  <text x="550" y="403" font-size="12" fill="#3D4E66">exaone3.5:7.8b</text>
+  <text x="550" y="428" font-size="11" fill="#7C8AA0">직접 입력…</text>
+</svg>

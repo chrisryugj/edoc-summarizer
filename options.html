@@ -25,7 +25,12 @@
     margin-top: 24px; border: none; background: var(--accent); color: #fff;
     border-radius: 8px; padding: 10px 24px; font-size: 14px; font-weight: 700; cursor: pointer;
   }
+  button.ghost {
+    background: transparent; color: var(--accent); border: 1px solid var(--accent); margin-left: 8px;
+  }
+  button:disabled { opacity: .5; cursor: default; }
   #saved { color: var(--accent); margin-left: 12px; font-weight: 600; }
+  #testResult { margin-top: 8px; min-height: 18px; }
   .openai-only { display: none; }
   body.openai .openai-only { display: block; }
 </style>
@@ -54,8 +59,13 @@
     <div class="hint">비워두면 로컬 Ollama(http://localhost:11434, API 키 불필요). 내부 서버는 주소 입력 (뒤에 /v1/chat/completions 자동 부착)</div>
   </div>
 
-  <button id="saveBtn">저장</button><span id="saved"></span>
+  <label for="widgetHosts">✨ 플로팅 버튼 표시 주소 (그룹웨어)</label>
+  <input type="text" id="widgetHosts" placeholder="cseoul.go.kr, gw.기관도메인.go.kr">
+  <div class="hint">쉼표로 구분, 호스트 부분 일치. 비워두면 기본(cseoul.go.kr)만. 변경 후 해당 페이지를 새로고침해야 적용됩니다 — 우클릭 메뉴·툴바 팝업은 주소와 무관하게 어디서나 동작</div>
 
-  <script src="options.js"></script>
+  <button id="saveBtn">저장</button><button id="testBtn" class="ghost">연결 테스트</button><span id="saved"></span>
+  <div class="hint" id="testResult"></div>
+
+  <script type="module" src="options.js"></script>
 </body>
 </html>

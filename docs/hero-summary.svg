@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="640" viewBox="0 0 920 640" font-family="'Segoe UI','Malgun Gothic','Apple SD Gothic Neo',sans-serif">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="0.4">
+      <stop offset="0" stop-color="#0A57D0"/><stop offset="0.55" stop-color="#0891B2"/><stop offset="1" stop-color="#00B8A9"/>
+    </linearGradient>
+    <filter id="sh" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="8" stdDeviation="14" flood-color="#0B1B33" flood-opacity="0.20"/>
+    </filter>
+    <filter id="sh2" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#0B1B33" flood-opacity="0.10"/>
+    </filter>
+  </defs>
+
+  <!-- 브라우저 창 -->
+  <rect x="8" y="8" width="904" height="624" rx="14" fill="#FFFFFF" stroke="#D5DAE3"/>
+  <rect x="8" y="8" width="904" height="76" rx="14" fill="#F1F3F7"/>
+  <rect x="8" y="64" width="904" height="20" fill="#F1F3F7"/>
+  <!-- 탭 -->
+  <rect x="24" y="18" width="264" height="30" rx="9" fill="#FFFFFF" stroke="#E2E7EF"/>
+  <circle cx="42" cy="33" r="5" fill="url(#g)"/>
+  <text x="54" y="37" font-size="11.5" fill="#3D4E66">문서관리카드 — 서울시 전자문서</text>
+  <!-- 주소창 -->
+  <rect x="24" y="52" width="560" height="24" rx="12" fill="#FFFFFF" stroke="#E2E7EF"/>
+  <text x="40" y="68" font-size="11" fill="#7C8AA0">🔒 gwangjin.cseoul.go.kr/app/appr/docCard/view.do</text>
+
+  <!-- 페이지 배경 -->
+  <rect x="9" y="84" width="902" height="547" rx="13" fill="#EDF0F5"/>
+  <rect x="9" y="84" width="902" height="20" fill="#EDF0F5"/>
+
+  <!-- 좌: 문서관리카드 스켈레톤 -->
+  <rect x="24" y="100" width="440" height="516" rx="10" fill="#FFFFFF" stroke="#E2E7EF"/>
+  <text x="44" y="130" font-size="13" font-weight="700" fill="#0B1B33">문서관리카드</text>
+  <rect x="330" y="112" width="56" height="22" rx="6" fill="#F0F3F8"/>
+  <text x="358" y="127" font-size="10.5" fill="#7C8AA0" text-anchor="middle">기안문</text>
+  <rect x="392" y="112" width="56" height="22" rx="6" fill="#F0F3F8"/>
+  <text x="420" y="127" font-size="10.5" fill="#7C8AA0" text-anchor="middle">문서정보</text>
+
+  <g font-size="10.5" fill="#7C8AA0">
+    <rect x="44" y="150" width="88" height="22" rx="5" fill="#F0F3F8"/><text x="56" y="165">제목</text>
+    <rect x="140" y="156" width="290" height="10" rx="5" fill="#E1E6EE"/>
+    <rect x="44" y="180" width="88" height="22" rx="5" fill="#F0F3F8"/><text x="56" y="195">문서번호</text>
+    <rect x="140" y="186" width="180" height="10" rx="5" fill="#E1E6EE"/>
+    <rect x="44" y="210" width="88" height="22" rx="5" fill="#F0F3F8"/><text x="56" y="225">시행일자</text>
+    <rect x="140" y="216" width="120" height="10" rx="5" fill="#E1E6EE"/>
+    <rect x="44" y="240" width="88" height="22" rx="5" fill="#F0F3F8"/><text x="56" y="255">수신자</text>
+    <rect x="140" y="246" width="210" height="10" rx="5" fill="#E1E6EE"/>
+    <rect x="44" y="270" width="88" height="22" rx="5" fill="#F0F3F8"/><text x="56" y="285">공개여부</text>
+    <rect x="140" y="276" width="90" height="10" rx="5" fill="#E1E6EE"/>
+    <rect x="44" y="300" width="88" height="22" rx="5" fill="#F0F3F8"/><text x="56" y="315">첨부</text>
+    <rect x="140" y="306" width="160" height="10" rx="5" fill="#E1E6EE"/>
+  </g>
+
+  <!-- 공문 종이 (웹한글 뷰어) -->
+  <rect x="64" y="350" width="360" height="246" rx="4" fill="#FFFFFF" stroke="#DFE4EC" filter="url(#sh2)"/>
+  <rect x="159" y="372" width="170" height="13" rx="6" fill="#D9DFE9"/>
+  <rect x="134" y="398" width="220" height="8" rx="4" fill="#E4E9F1"/>
+  <g fill="#E4E9F1">
+    <rect x="88" y="426" width="300" height="8" rx="4"/>
+    <rect x="88" y="444" width="268" height="8" rx="4"/>
+    <rect x="100" y="462" width="288" height="8" rx="4"/>
+    <rect x="100" y="480" width="238" height="8" rx="4"/>
+    <rect x="88" y="498" width="298" height="8" rx="4"/>
+    <rect x="88" y="516" width="196" height="8" rx="4"/>
+    <rect x="100" y="534" width="252" height="8" rx="4"/>
+  </g>
+  <rect x="376" y="556" width="28" height="28" rx="4" fill="none" stroke="#E5484D" stroke-opacity="0.45" stroke-width="1.5"/>
+
+  <!-- 플로팅 버튼 -->
+  <rect x="424" y="304" width="46" height="46" rx="15" fill="url(#g)" filter="url(#sh)"/>
+  <path d="M447 314l3.4 9.2 9.2 3.4-9.2 3.4-3.4 9.2-3.4-9.2-9.2-3.4 9.2-3.4z" fill="#FFFFFF"/>
+  <path d="M458.5 331l1.6 4.3 4.3 1.6-4.3 1.6-1.6 4.3-1.6-4.3-4.3-1.6 4.3-1.6z" fill="#A5F3FC"/>
+
+  <!-- 우: AI 요약 오버레이 패널 -->
+  <rect x="492" y="96" width="400" height="494" rx="16" fill="#F9FBFE" stroke="#DCE2EC" filter="url(#sh)"/>
+  <circle cx="512" cy="118" r="5" fill="url(#g)"/>
+  <text x="524" y="123" font-size="13" font-weight="800" fill="#0B1B33">AI 문서 요약</text>
+  <g font-size="11" fill="#7C8AA0">
+    <text x="640" y="122">복사</text><text x="676" y="122">저장</text>
+    <text x="712" y="122">가−</text><text x="742" y="122">가＋</text>
+  </g>
+  <rect x="774" y="106" width="38" height="22" rx="7" fill="#E3ECFB"/>
+  <text x="793" y="121" font-size="11" font-weight="700" fill="#0A57D0" text-anchor="middle">요약</text>
+  <text x="822" y="122" font-size="11" fill="#7C8AA0">검토</text>
+  <text x="848" y="122" font-size="11" fill="#7C8AA0">↻</text>
+  <text x="868" y="122" font-size="11" fill="#7C8AA0">✕</text>
+  <line x1="492" y1="140" x2="892" y2="140" stroke="#E8EBF1"/>
+
+  <!-- 메인 카드 -->
+  <rect x="506" y="152" width="372" height="178" rx="12" fill="#FFFFFF" stroke="#E8EBF1"/>
+  <rect x="506" y="152" width="372" height="4" rx="2" fill="url(#g)"/>
+  <rect x="522" y="168" width="96" height="23" rx="11.5" fill="url(#g)"/>
+  <text x="570" y="184" font-size="11.5" font-weight="700" fill="#FFFFFF" text-anchor="middle">자료제출요구</text>
+  <rect x="624" y="168" width="66" height="23" rx="11.5" fill="#FBE9EA"/>
+  <text x="657" y="184" font-size="11.5" font-weight="700" fill="#E5484D" text-anchor="middle">조치 필요</text>
+  <text x="522" y="216" font-size="14" font-weight="750" fill="#0B1B33">2026년 하반기 적극행정 우수사례 제출 요청</text>
+  <rect x="522" y="228" width="164" height="19" rx="6" fill="#F0F3F8"/>
+  <text x="530" y="241" font-size="10.5" fill="#3D4E66"><tspan fill="#7C8AA0">문서번호</tspan> 행정지원과-12345</text>
+  <rect x="692" y="228" width="118" height="19" rx="6" fill="#F0F3F8"/>
+  <text x="700" y="241" font-size="10.5" fill="#3D4E66"><tspan fill="#7C8AA0">발신</tspan> 시 기획조정실</text>
+  <text x="522" y="272" font-size="12" fill="#3D4E66">적극행정 우수사례 부서당 3건 이내 제출 요청</text>
+  <rect x="522" y="284" width="340" height="30" rx="9" fill="#E7EFFB"/>
+  <text x="534" y="304" font-size="12.5" font-weight="700" fill="#0A57D0">📅 2026. 8. 14.(금)까지 · D-15</text>
+
+  <!-- 핵심 내용 -->
+  <rect x="506" y="342" width="372" height="128" rx="12" fill="#FFFFFF" stroke="#E8EBF1"/>
+  <rect x="522" y="355" width="3" height="12" rx="1.5" fill="url(#g)"/>
+  <text x="532" y="365" font-size="11" font-weight="750" fill="#7C8AA0" letter-spacing="0.06em">핵심 내용</text>
+  <rect x="522" y="379" width="44" height="18" rx="5" fill="#E7EFFB"/>
+  <text x="544" y="392" font-size="10.5" font-weight="700" fill="#0A57D0" text-anchor="middle">대상</text>
+  <text x="576" y="393" font-size="12" fill="#3D4E66">2026년 상반기 추진 완료 사업</text>
+  <rect x="522" y="405" width="44" height="18" rx="5" fill="#E7EFFB"/>
+  <text x="544" y="418" font-size="10.5" font-weight="700" fill="#0A57D0" text-anchor="middle">제출</text>
+  <text x="576" y="419" font-size="12" fill="#3D4E66">사례요약서(붙임 서식) <tspan font-weight="750" fill="#0B1B33">부서당 3건 이내</tspan></text>
+  <rect x="522" y="431" width="44" height="18" rx="5" fill="#E7EFFB"/>
+  <text x="544" y="444" font-size="10.5" font-weight="700" fill="#0A57D0" text-anchor="middle">심사</text>
+  <text x="576" y="445" font-size="12" fill="#3D4E66">시 적극행정위원회 서면심사 (9월 중)</text>
+
+  <!-- 조치 사항 -->
+  <rect x="506" y="478" width="372" height="54" rx="12" fill="#FFFFFF" stroke="#E8EBF1"/>
+  <rect x="522" y="490" width="3" height="12" rx="1.5" fill="#12B76A"/>
+  <text x="532" y="500" font-size="11" font-weight="750" fill="#7C8AA0" letter-spacing="0.06em">조치 사항</text>
+  <circle cx="527" cy="517" r="2.5" fill="#12B76A"/>
+  <text x="538" y="521" font-size="12" fill="#3D4E66">사례요약서 작성 후 <tspan font-weight="750" fill="#0B1B33">8. 14.(금)까지</tspan> 기획조정실 제출</text>
+
+  <!-- 주의 -->
+  <rect x="506" y="540" width="372" height="38" rx="12" fill="#FFF7F7" stroke="#F3D8D9"/>
+  <circle cx="527" cy="559" r="2.5" fill="#E5484D"/>
+  <text x="538" y="563" font-size="12" fill="#A63A3E">※ 타 공모전 기수상 사례는 <tspan font-weight="750">제출 제외</tspan></text>
+</svg>

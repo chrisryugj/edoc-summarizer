@@ -1,14 +1,22 @@
-// 전자문서(cseoul.go.kr) 문서 화면에 플로팅 AI 요약 버튼을 띄우는 콘텐츠 스크립트.
+// 전자문서 문서 화면에 플로팅 AI 요약 버튼을 띄우는 콘텐츠 스크립트.
 // 클릭하면 background로 요약 요청. 드래그로 위치 이동 가능(위치는 저장되어 유지).
-// 문서카드 화면이 아닌 페이지에는 표시하지 않음.
-(() => {
+// 표시 대상 주소는 옵션의 widgetHosts로 확장 가능 (기본 cseoul.go.kr) — KYCI의 동작 URL 설정 방식.
+(async () => {
   const HOST_ID = '__edoc_ai_widget_host';
   if (document.getElementById(HOST_ID)) return;
+
+  const DEFAULT_HOSTS = ['cseoul.go.kr'];
+  const { widgetHosts } = await chrome.storage.sync.get('widgetHosts');
+  const hosts = (Array.isArray(widgetHosts) && widgetHosts.length ? widgetHosts : DEFAULT_HOSTS)
+    .map((h) => String(h).trim()).filter(Boolean);
+  if (!hosts.some((h) => location.host.includes(h))) return;
+  // 기본 사이트는 문서카드 화면 셀렉터로 판별, 사용자가 추가한 그룹웨어는 셀렉터를 모르므로 항상 표시
+  const isDefaultSite = DEFAULT_HOSTS.some((h) => location.host.includes(h));
 
   let tries = 0;
   const tryMount = async () => {
     // 문서관리카드 화면인지 확인 (본문 영역 존재 여부)
-    if (!document.querySelector('#DIV_ENF_DOC, #dvAppr')) {
+    if (isDefaultSite && !document.querySelector('#DIV_ENF_DOC, #dvAppr')) {
       if (++tries < 5) setTimeout(tryMount, 1500);
       return;
     }

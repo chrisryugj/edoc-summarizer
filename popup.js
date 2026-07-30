@@ -67,7 +67,20 @@ async function doSummarize(source, config) {
   const text = source.text.slice(0, MAX_CHARS);
   setStatus(`요약 중… (${source.how}, ${text.length.toLocaleString()}자)`);
   try {
-    const r = await summarize(text, config);
+    // SSE 스트리밍 부분 결과를 즉시 렌더 (150ms 스로틀 + 내용 미변경 틱 스킵)
+    let last = 0;
+    let lastJson = '';
+    const r = await summarize(text, config, {
+      onPartial: (p) => {
+        const now = Date.now();
+        if (now - last < 150) return;
+        const j = JSON.stringify(p);
+        if (j === lastJson) return;
+        lastJson = j;
+        last = now;
+        render(p, source, text.length, true);
+      },
+    });
     render(r, source, text.length);
     setStatus('');
   } catch (e) {
@@ -88,7 +101,7 @@ function fmtDeadline(iso) {
   return { text: `📅 ${+m[1]}. ${+m[2]}. ${+m[3]}.(${yoil})까지 · ${dday}`, urgent: diff <= 3 };
 }
 
-function render(r, source, chars) {
+function render(r, source, chars, partial = false) {
   $('docType').textContent = r.doc_type || '문서';
   $('actPill').textContent = r.action_required ? '조치 필요' : '참고';
   $('actPill').classList.toggle('need', !!r.action_required);
@@ -104,11 +117,12 @@ function render(r, source, chars) {
   fillList('cautions', r.cautions);
   $('actionsSec').classList.toggle('hidden', !r.actions?.length);
   $('cautionsSec').classList.toggle('hidden', !r.cautions?.length);
-  const noCardBody = source.how === '문서카드';
+  const noCardBody = !partial && source.how === '문서카드';
   $('notice').classList.toggle('hidden', !noCardBody);
   if (noCardBody) $('notice').textContent = '⚠ 공문 본문(HWP)을 읽지 못해 문서카드 정보만 요약했습니다. 뷰어에서 본문을 드래그 선택한 뒤 다시 실행하세요.';
   $('meta').textContent = '';
   $('result').classList.remove('hidden');
+  if (partial) return; // 복사용 마크다운은 최종 결과에서만
 
   const md = [`# [${r.doc_type || '문서'}] ${r.title || r.one_line || ''}`];
   if (r.title && r.one_line) md.push(`> ${r.one_line}`);
