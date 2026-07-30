@@ -220,15 +220,20 @@ function renderOverlay(state) {
     const actPill = r.action_required
       ? '<span class="pill need">조치 필요</span>'
       : '<span class="pill ref">참고</span>';
-    const srcBits = [r.doc_no, r.sender && r.receiver ? `${r.sender} → ${r.receiver}` : r.sender || r.receiver, r.sent_date]
-      .filter(Boolean).map(esc).join(' · ');
+    const chip = (label, val) => (val ? `<span class="chip"><span class="cl">${esc(label)}</span>${esc(val)}</span>` : '');
+    const chips = [
+      chip('문서번호', r.doc_no),
+      chip('발신', r.sender),
+      chip('수신', r.receiver),
+      chip('시행', r.sent_date),
+    ].join('');
     body = `
       <div class="card main">
         <div><span class="pill type">${esc(r.doc_type || '문서')}</span>${actPill}</div>
         ${r.title
           ? `<div class="one">${esc(r.title)}</div><div class="sub">${esc(r.one_line)}</div>`
           : `<div class="one">${esc(r.one_line)}</div>`}
-        ${srcBits ? `<div class="src">${srcBits}</div>` : ''}
+        ${chips ? `<div class="chips">${chips}</div>` : ''}
         ${deadline}
       </div>
       <div class="card"><h2>핵심 내용</h2><ul>${list(r.key_points)}</ul></div>
@@ -294,7 +299,13 @@ function renderOverlay(state) {
       .pill.ref { background: rgba(11, 27, 51, .06); color: var(--ink2); margin-left: 6px; }
       .one { font-weight: 750; font-size: 1.07em; letter-spacing: -.012em; margin-top: 10px; color: var(--ink); }
       .sub { margin-top: 5px; font-weight: 550; font-size: .97em; color: var(--ink2); }
-      .src { margin-top: 7px; font-size: .84em; color: var(--ink3); }
+      .chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+      .chip {
+        display: inline-flex; align-items: center; gap: 6px;
+        background: rgba(11, 27, 51, .05); border-radius: 7px; padding: 3.5px 9px;
+        font-size: .8em; font-weight: 600; color: var(--ink2);
+      }
+      .chip .cl { color: var(--ink3); font-weight: 600; font-size: .92em; }
       .deadline {
         margin-top: 10px; display: flex; align-items: center; gap: 6px;
         background: rgba(10, 87, 208, .07); color: var(--brand);
