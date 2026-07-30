@@ -192,12 +192,16 @@ function renderOverlay(state) {
   const root = host.shadowRoot;
   const fontSize = +(host.dataset.fs || 14);
   const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-  // "라벨: 내용" → 라벨 볼드
-  const item = (s) => {
-    const m = /^([^:：]{1,12})[:：]\s*(.+)$/s.exec(String(s ?? ''));
-    return m ? `<b>${esc(m[1])}</b> · ${esc(m[2])}` : esc(s);
-  };
-  const list = (items) => (items || []).map((i) => `<li>${item(i)}</li>`).join('');
+  // 이스케이프 후 **볼드** 마크다운만 <b>로 변환
+  const bold = (s) => esc(s).replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
+  // key_points: "라벨: 내용" → 라벨 태그 + 내용 행
+  const kvList = (items) => (items || []).map((i) => {
+    const m = /^([^:：]{1,12})[:：]\s*(.+)$/s.exec(String(i ?? ''));
+    return m
+      ? `<li class="kv"><span class="kl">${esc(m[1])}</span><span class="kt">${bold(m[2])}</span></li>`
+      : `<li>${bold(i)}</li>`;
+  }).join('');
+  const list = (items) => (items || []).map((i) => `<li>${bold(i)}</li>`).join('');
 
   let body = '';
   const hasResult = !!state.result;
@@ -230,13 +234,12 @@ function renderOverlay(state) {
     body = `
       <div class="card main">
         <div><span class="pill type">${esc(r.doc_type || '문서')}</span>${actPill}</div>
-        ${r.title
-          ? `<div class="one">${esc(r.title)}</div><div class="sub">${esc(r.one_line)}</div>`
-          : `<div class="one">${esc(r.one_line)}</div>`}
+        ${r.title ? `<div class="one ell" title="${esc(r.title)}">${esc(r.title)}</div>` : `<div class="one">${esc(r.one_line)}</div>`}
         ${chips ? `<div class="chips">${chips}</div>` : ''}
+        ${r.title ? `<div class="sub">${esc(r.one_line)}</div>` : ''}
         ${deadline}
       </div>
-      <div class="card"><h2>핵심 내용</h2><ul>${list(r.key_points)}</ul></div>
+      <div class="card"><h2>핵심 내용</h2><ul>${kvList(r.key_points)}</ul></div>
       ${r.actions?.length ? `<div class="card act"><h2>조치 사항</h2><ul>${list(r.actions)}</ul></div>` : ''}
       ${r.cautions?.length ? `<div class="card warn"><h2>주의</h2><ul>${list(r.cautions)}</ul></div>` : ''}
       ${state.warn ? `<div class="notice">⚠ ${esc(state.warn)}</div>` : ''}`;
@@ -298,7 +301,8 @@ function renderOverlay(state) {
       .pill.need { background: rgba(229, 72, 77, .1); color: var(--danger); margin-left: 6px; }
       .pill.ref { background: rgba(11, 27, 51, .06); color: var(--ink2); margin-left: 6px; }
       .one { font-weight: 750; font-size: 1.07em; letter-spacing: -.012em; margin-top: 10px; color: var(--ink); }
-      .sub { margin-top: 5px; font-weight: 550; font-size: .97em; color: var(--ink2); }
+      .ell { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .sub { margin-top: 8px; font-weight: 550; font-size: .95em; color: var(--ink2); }
       .chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
       .chip {
         display: inline-flex; align-items: center; gap: 6px;
@@ -333,7 +337,14 @@ function renderOverlay(state) {
         content: ''; position: absolute; left: 0; top: .58em; width: 5px; height: 5px;
         border-radius: 50%; background: linear-gradient(135deg, #0A57D0, #0891B2);
       }
-      li b { color: var(--ink); font-weight: 700; }
+      li b { color: var(--ink); font-weight: 750; }
+      li.kv { display: flex; align-items: flex-start; gap: 8px; padding-left: 0; }
+      li.kv::before { display: none; }
+      .kl {
+        flex: none; background: rgba(10, 87, 208, .08); color: var(--brand);
+        font-weight: 700; font-size: .78em; padding: 3px 9px; border-radius: 6px; margin-top: .12em;
+      }
+      .kt { min-width: 0; }
       .act li::before { background: #12B76A; }
       .warn { background: #FFFBFB; border-color: rgba(229, 72, 77, .18); }
       .warn li { color: #A63A3E; }

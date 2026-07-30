@@ -126,19 +126,15 @@ function render(r, source, chars) {
 }
 
 function fillList(id, items) {
+  const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const bold = (s) => esc(s).replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
   const ul = $(id);
   ul.textContent = '';
   for (const item of items || []) {
     const li = document.createElement('li');
-    // "라벨: 내용" → 라벨 볼드
+    // "라벨: 내용" → 라벨 볼드, **강조** → <b>
     const m = /^([^:：]{1,12})[:：]\s*(.+)$/s.exec(String(item ?? ''));
-    if (m) {
-      const b = document.createElement('b');
-      b.textContent = m[1];
-      li.append(b, ' : ' + m[2]);
-    } else {
-      li.textContent = item;
-    }
+    li.innerHTML = m ? `<b>${esc(m[1])}</b> · ${bold(m[2])}` : bold(item);
     ul.appendChild(li);
   }
 }
