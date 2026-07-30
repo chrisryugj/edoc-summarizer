@@ -107,7 +107,7 @@ function render(r, source, chars) {
   const noCardBody = source.how === '문서카드';
   $('notice').classList.toggle('hidden', !noCardBody);
   if (noCardBody) $('notice').textContent = '⚠ 공문 본문(HWP)을 읽지 못해 문서카드 정보만 요약했습니다. 뷰어에서 본문을 드래그 선택한 뒤 다시 실행하세요.';
-  $('meta').textContent = `${source.how} · ${chars.toLocaleString()}자 분석${source.title ? ' · ' + source.title : ''}`;
+  $('meta').textContent = '';
   $('result').classList.remove('hidden');
 
   const md = [`# [${r.doc_type || '문서'}] ${r.one_line || ''}`];

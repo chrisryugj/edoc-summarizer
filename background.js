@@ -225,8 +225,7 @@ function renderOverlay(state) {
       <div class="card"><h2>핵심 내용</h2><ul>${list(r.key_points)}</ul></div>
       ${r.actions?.length ? `<div class="card act"><h2>조치 사항</h2><ul>${list(r.actions)}</ul></div>` : ''}
       ${r.cautions?.length ? `<div class="card warn"><h2>주의</h2><ul>${list(r.cautions)}</ul></div>` : ''}
-      ${state.warn ? `<div class="notice">⚠ ${esc(state.warn)}</div>` : ''}
-      <div class="meta">${esc(state.meta || '')}</div>`;
+      ${state.warn ? `<div class="notice">⚠ ${esc(state.warn)}</div>` : ''}`;
   }
 
   root.innerHTML = `

@@ -7,11 +7,11 @@ const SYSTEM_PROMPT = `당신은 한국 공공기관 전자문서 요약 전문�
 "이 문서로 내가 무엇을, 언제까지, 어떻게 해야 하는가"가 즉시 파악되도록 아래 JSON 스키마로만 답하세요.
 
 {
-  "doc_type": "문서 종류 (예: 자료제출요구, 협조요청, 사기주의 안내, 계획 알림, 지시, 회의개최 등)",
-  "action_required": "수신 부서가 실제로 해야 할 조치가 있으면 true, 단순 참고·공유·안내면 false",
+  "doc_type": "문서 종류 — 2~8자 명사형 (예: 자료제출요구, 협조요청, 사기주의, 계획알림, 회의개최). 서술형 금지",
+  "action_required": "JSON boolean(true/false)로만. 수신 부서가 실제로 해야 할 조치가 있으면 true, 단순 참고·공유·안내면 false",
   "one_line": "문서의 핵심을 담은 한 문장 (40자 내외)",
-  "deadline": "가장 중요한 제출·회신·조치 기한을 YYYY-MM-DD로. 기한이 없으면 null",
-  "key_points": ["'라벨: 내용' 형태. 라벨은 2~6자(예: 발생일, 수법, 대상, 범위, 근거). 내용은 핵심만 간결하게"],
+  "deadline": "수신자가 제출·회신·신청 등 조치를 완료해야 하는 마감일을 YYYY-MM-DD로. 행사일·회의 개최일 자체는 기한이 아님(참석 신청 마감이 따로 있으면 그 날짜). 기한이 없으면 null",
+  "key_points": ["'라벨: 내용' 형태. 라벨은 2~6자 명사(예: 발생일, 수법, 대상, 범위, 근거)이며 라벨 안에 콜론·괄호를 넣지 말 것. 항목 간 라벨 중복 금지. 내용은 핵심만 간결하게"],
   "actions": ["수신자가 해야 할 조치. 각 항목은 '무엇을(서식·자료명) + 어떻게/어디로(제출처·제출방법) + 언제까지(기한, 요일 포함)'가 담긴 완결된 문장으로. 없으면 빈 배열"],
   "cautions": ["본문에 명시된 주의·특이사항만: ※ 표시 문구, '필수'·'반드시' 요구, 미이행 시 불이익, 타 부서 확인 요청 등. 없으면 빈 배열"]
 }
@@ -21,6 +21,8 @@ const SYSTEM_PROMPT = `당신은 한국 공공기관 전자문서 요약 전문�
 - one_line에 담은 내용을 key_points에 반복하지 마세요. key_points 항목 간에도 중복 금지.
 - 본문이 짧으면 key_points는 2~3개로 충분합니다. 억지로 채우지 마세요.
 - 전화번호·계좌번호·문서번호 등 식별 정보는 조작 없이 정확히 유지하세요.
+- 문서에 날짜가 여러 개면 의미를 구분하세요: 발생일·시행일은 key_points의 라벨로,
+  수신자의 조치 마감일만 deadline으로. 같은 날짜를 두 곳에 중복 배치하지 마세요.
 - 모든 문장은 자연스러운 한국어로 다듬어 쓰세요. 조사를 어색하게 생략한 기계적 나열, 번역투,
   '~임'의 남발을 피하고, 개조식이라도 사람이 소리 내어 읽었을 때 매끄럽게 쓰세요.
 - one_line은 '~하는 문서', '~을 요청하는 공문'처럼 문서의 정체가 바로 잡히는 자연스러운 서술로 끝맺으세요.
@@ -102,7 +104,10 @@ function parseResult(raw) {
   // 모델이 ```json 펜스를 붙이는 경우 대비
   const stripped = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
   try {
-    return JSON.parse(stripped);
+    const r = JSON.parse(stripped);
+    // 모델이 boolean 대신 문자열 "true"/"false"를 줄 때 대비 ("false"는 truthy)
+    r.action_required = r.action_required === true || r.action_required === 'true';
+    return r;
   } catch {
     // JSON 파싱 실패 시 원문을 one_line으로라도 보여줌
     return { doc_type: '?', one_line: stripped.slice(0, 500), key_points: [], actions: [], cautions: [] };
