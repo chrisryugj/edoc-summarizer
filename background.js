@@ -75,13 +75,11 @@ async function runSummarize(tabId) {
     }
 
     const text = source.text.slice(0, MAX_CHARS);
-    await overlay({ status: `요약 중… (${source.how}, ${text.length.toLocaleString()}자)` });
+    await overlay({ status: '요약 중…' });
     const r = await summarize(text, config);
-    const meta = `${source.how} · ${text.length.toLocaleString()}자 분석`;
     await overlay({
       result: r,
-      meta,
-      md: buildMarkdown(r, source.title, meta),
+      md: buildMarkdown(r),
       fileName: `AI요약_${(r.title || r.doc_type || '문서').slice(0, 40).replace(/[\\/:*?"<>|\s]/g, '_')}_${new Date().toISOString().slice(0, 10)}.md`,
       warn: source.how === '문서카드'
         ? '공문 본문(HWP)을 읽지 못해 문서카드 정보만 요약했습니다.'
@@ -99,7 +97,7 @@ async function runSummarize(tabId) {
 }
 
 // 복사·내보내기용 마크다운 생성
-function buildMarkdown(r, title, meta) {
+function buildMarkdown(r) {
   const lines = [`# [${r.doc_type || '문서'}] ${r.title || r.one_line || ''}`];
   if (r.title && r.one_line) lines.push(`> ${r.one_line}`);
   const info = [];
@@ -112,7 +110,7 @@ function buildMarkdown(r, title, meta) {
   if (r.key_points?.length) lines.push('\n## 핵심 내용', ...r.key_points.map((k) => `- ${k}`));
   if (r.actions?.length) lines.push('\n## 조치 사항', ...r.actions.map((a) => `- [ ] ${a}`));
   if (r.cautions?.length) lines.push('\n## 주의', ...r.cautions.map((c) => `- ⚠ ${c}`));
-  lines.push(`\n---\n_${meta} · ${new Date().toLocaleString('ko-KR')} · 전자문서 AI 요약_`);
+  lines.push(`\n---\n_${new Date().toLocaleString('ko-KR')} · 전자문서 AI 요약_`);
   return lines.join('\n');
 }
 
