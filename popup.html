@@ -54,22 +54,27 @@
   .cautions li { color: var(--warn); }
   #notice { background: #fffbeb; color: #b45309; border-radius: 8px; padding: 6px 10px; font-size: 12px; margin-bottom: 8px; }
   @media (prefers-color-scheme: dark) { #notice { background: #3a2f12; color: #fbbf24; } }
-  #meta { color: var(--muted); font-size: 11px; border-top: 1px solid var(--line); padding-top: 8px; margin-top: 4px; }
+  #disclaim { color: var(--muted); font-size: 11px; border-top: 1px solid var(--line); padding-top: 8px; margin-top: 4px; line-height: 1.5; }
   #pasteArea { display: none; }
   #pasteArea textarea {
     width: 100%; height: 140px; border: 1px solid var(--line); border-radius: 8px;
     background: var(--bg); color: var(--fg); padding: 8px; font: inherit; resize: vertical;
   }
-  #pasteArea button, #retryBtn {
+  #pasteArea button {
     margin-top: 6px; border: none; background: var(--accent); color: #fff;
     border-radius: 6px; padding: 6px 14px; font-size: 12.5px; font-weight: 600; cursor: pointer;
   }
+  #srcBadge {
+    margin-left: 7px; padding: 2px 7px; border-radius: 6px; font-size: 10.5px; font-weight: 700;
+    background: rgba(18, 183, 106, .12); color: #0E9F6E; white-space: nowrap;
+  }
+  #srcBadge.ext { background: var(--warn-bg); color: var(--warn); }
   .hidden { display: none !important; }
 </style>
 </head>
 <body>
   <header>
-    <h1>📄 전자문서 AI 요약</h1>
+    <h1>📄 전자문서 AI 요약<span id="srcBadge" class="hidden"></span></h1>
     <div class="btns">
       <button id="copyBtn" title="요약 복사">📋 복사</button>
       <button id="reBtn" title="다시 요약">↻ 다시</button>
@@ -92,7 +97,7 @@
     <section id="actionsSec"><h2>조치 사항</h2><ul id="actions" class="actions"></ul></section>
     <section id="cautionsSec" class="cautions"><h2>⚠ 주의</h2><ul id="cautions"></ul></section>
     <div id="notice" class="hidden"></div>
-    <div id="meta"></div>
+    <div id="disclaim">AI 생성 요약입니다. 기한·금액·문서번호는 원문에서 다시 확인하세요.</div>
   </div>
 
   <script type="module" src="popup.js"></script>

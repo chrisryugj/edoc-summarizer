@@ -7,10 +7,16 @@
 #   4. API 동작 검증
 #
 # 사용법 (PowerShell):
-#   powershell -ExecutionPolicy Bypass -File scripts\setup-local-llm.ps1
-#   powershell -ExecutionPolicy Bypass -File scripts\setup-local-llm.ps1 -Model gemma4:e2b
+#   powershell -ExecutionPolicy Bypass -File scripts\setup-local-llm.ps1 -ExtensionId <확장ID>
+#   powershell -ExecutionPolicy Bypass -File scripts\setup-local-llm.ps1 -ExtensionId <확장ID> -Model gemma4:e2b
+#
+# 확장 ID는 edge://extensions (또는 chrome://extensions)에서 이 확장의 "ID" 값을 복사한다.
+# ID를 주지 않으면 chrome-extension://* 와일드카드로 열리는데, 이는 설치된 **모든** 확장에
+# 인증 없는 로컬 LLM을 개방하는 설정이라 권장하지 않는다 (Ollama는 오리진 허용목록이 유일한 접근통제).
 param(
-    [string]$Model = "qwen3.5:9b"
+    [string]$Model = "qwen3.5:9b",
+    [string]$ExtensionId = "",
+    [switch]$AllowAnyExtension
 )
 
 $ErrorActionPreference = "Stop"
@@ -33,14 +39,29 @@ $exe = $ollama.Source
 Write-Host "OK: $exe"
 
 # 2. 확장 접근 허용 (chrome-extension:// 오리진)
+# Ollama에는 인증이 없다 — OLLAMA_ORIGINS 허용목록이 유일한 접근 통제이므로 이 확장 ID로만 연다.
 Step "OLLAMA_ORIGINS 설정 (브라우저 확장 접근 허용)"
+if (-not $ExtensionId -and -not $AllowAnyExtension) {
+    throw @"
+-ExtensionId 가 필요합니다.
+  1) edge://extensions 또는 chrome://extensions 를 연다
+  2) 개발자 모드를 켜고 '전자문서 AI 요약'의 ID(32자 영문)를 복사한다
+  3) 다시 실행: powershell -ExecutionPolicy Bypass -File scripts\setup-local-llm.ps1 -ExtensionId <복사한ID>
+
+모든 확장에 로컬 LLM을 개방해도 괜찮다면 -AllowAnyExtension 을 붙이세요 (권장하지 않음).
+"@
+}
+if ($ExtensionId -and $ExtensionId -notmatch '^[a-p]{32}$') {
+    throw "확장 ID 형식이 올바르지 않습니다: $ExtensionId (a~p 32자여야 합니다)"
+}
+$origin = if ($ExtensionId) { "chrome-extension://$ExtensionId" } else { "chrome-extension://*" }
 $cur = [Environment]::GetEnvironmentVariable("OLLAMA_ORIGINS", "User")
-if ($cur -notlike "*chrome-extension://*") {
-    $val = if ($cur) { "$cur,chrome-extension://*" } else { "chrome-extension://*" }
+if ($cur -split ',' -notcontains $origin) {
+    $val = if ($cur) { "$cur,$origin" } else { $origin }
     [Environment]::SetEnvironmentVariable("OLLAMA_ORIGINS", $val, "User")
     Write-Host "설정됨: $val (Ollama 재시작 후 적용)"
-    # 재시작하여 즉시 적용
-    Get-Process | Where-Object { $_.Name -match "ollama" } | Stop-Process -Force -ErrorAction SilentlyContinue
+    # 재시작하여 즉시 적용 — 이름이 정확히 일치하는 프로세스만 (부분 일치는 무관한 프로세스를 죽인다)
+    Get-Process -Name "ollama", "ollama app" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
     Start-Sleep -Seconds 3
 } else {
     Write-Host "이미 설정되어 있음: $cur"

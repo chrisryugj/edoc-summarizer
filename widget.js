@@ -1,17 +1,35 @@
 // 전자문서 문서 화면에 플로팅 AI 요약 버튼을 띄우는 콘텐츠 스크립트.
 // 클릭하면 background로 요약 요청. 드래그로 위치 이동 가능(위치는 저장되어 유지).
-// 표시 대상 주소는 옵션의 widgetHosts로 확장 가능 (기본 cseoul.go.kr) — KYCI의 동작 URL 설정 방식.
+//
+// 이 스크립트는 background.js가 사용자 승인 호스트에만 동적 등록한다(정적 content_scripts 없음).
+// 클래식 스크립트로 주입되므로 import를 쓸 수 없어 호스트 매칭을 여기서 다시 확인한다.
 (async () => {
   const HOST_ID = '__edoc_ai_widget_host';
-  if (document.getElementById(HOST_ID)) return;
+  const stale = document.getElementById(HOST_ID);
+  if (stale) {
+    // __alive는 격리 월드 expando — 있으면 이번 월드에서 마운트한 살아있는 위젯이다.
+    // 없으면 확장 리로드로 런타임이 끊긴 껍데기이므로 치우고 새로 띄운다.
+    if (stale.__alive) return;
+    stale.remove();
+  }
 
   const DEFAULT_HOSTS = ['cseoul.go.kr'];
+  // config.js normalizeHost와 같은 규칙 (콘텐츠 스크립트는 클래식이라 import 불가).
+  // 한글 도메인을 punycode로 맞추고 포트를 떼어낸다 — location.hostname과 비교하려면 필요하다.
+  const norm = (h) => {
+    const raw = String(h || '').trim().replace(/^\*\./, '');
+    if (!raw || /[/\s*]/.test(raw)) return '';
+    try { return new URL(`https://${raw}`).hostname; } catch { return ''; }
+  };
+  // 부분 문자열 매칭은 cseoul.go.kr.attacker.com 같은 스푸핑 도메인에도 걸린다 — 경계를 고정한다.
+  const matches = (h) => h && (location.hostname === h || location.hostname.endsWith('.' + h));
+
   const { widgetHosts } = await chrome.storage.sync.get('widgetHosts');
   const hosts = (Array.isArray(widgetHosts) && widgetHosts.length ? widgetHosts : DEFAULT_HOSTS)
-    .map((h) => String(h).trim()).filter(Boolean);
-  if (!hosts.some((h) => location.host.includes(h))) return;
+    .map(norm).filter(Boolean);
+  if (!hosts.some(matches)) return;
   // 기본 사이트는 문서카드 화면 셀렉터로 판별, 사용자가 추가한 그룹웨어는 셀렉터를 모르므로 항상 표시
-  const isDefaultSite = DEFAULT_HOSTS.some((h) => location.host.includes(h));
+  const isDefaultSite = DEFAULT_HOSTS.map(norm).some(matches);
 
   let tries = 0;
   const tryMount = async () => {
@@ -33,8 +51,10 @@
       host.style.right = '16px';
     }
     document.documentElement.appendChild(host);
+    host.__alive = true;
 
-    const root = host.attachShadow({ mode: 'open' });
+    // closed — 페이지 스크립트가 shadowRoot로 버튼을 찾아 click()으로 요약을 반복 실행하지 못하게.
+    const root = host.attachShadow({ mode: 'closed' });
     root.innerHTML = `
       <style>
         .orb {
@@ -78,6 +98,7 @@
     // 클릭 = 요약 실행, 드래그(5px 이상 이동) = 위치 이동
     const btn = root.querySelector('.orb');
     btn.addEventListener('pointerdown', (e) => {
+      if (!e.isTrusted) return; // 페이지가 만든 합성 이벤트는 무시
       const startX = e.clientX;
       const startY = e.clientY;
       const rect = host.getBoundingClientRect();
@@ -89,18 +110,28 @@
         host.style.top = Math.max(0, Math.min(window.innerHeight - 58, rect.top + ev.clientY - startY)) + 'px';
         host.style.right = 'auto';
       };
-      const up = () => {
-        window.removeEventListener('pointermove', move);
-        window.removeEventListener('pointerup', up);
+      // 창 밖에서 놓거나 pointercancel이 나도 리스너가 남지 않도록 포인터를 캡처한다
+      const up = (ev) => {
+        btn.removeEventListener('pointermove', move);
+        btn.removeEventListener('pointerup', up);
+        btn.removeEventListener('pointercancel', up);
+        try { btn.releasePointerCapture(e.pointerId); } catch { /* 이미 해제됨 */ }
         if (dragged) {
           const r = host.getBoundingClientRect();
           chrome.storage.local.set({ widgetPos: { left: r.left, top: r.top } });
-        } else {
-          chrome.runtime.sendMessage({ type: 'edoc-summarize' });
+        } else if (ev.type === 'pointerup') {
+          try {
+            chrome.runtime.sendMessage({ type: 'edoc-summarize' }, () => void chrome.runtime.lastError);
+          } catch {
+            // 확장 업데이트·리로드로 런타임 연결이 끊긴 상태
+            btn.title = '확장이 업데이트되었습니다 — 페이지를 새로고침하세요';
+          }
         }
       };
-      window.addEventListener('pointermove', move);
-      window.addEventListener('pointerup', up);
+      try { btn.setPointerCapture(e.pointerId); } catch { /* 미지원 */ }
+      btn.addEventListener('pointermove', move);
+      btn.addEventListener('pointerup', up);
+      btn.addEventListener('pointercancel', up);
     });
   };
   tryMount();

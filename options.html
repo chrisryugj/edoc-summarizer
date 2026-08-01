@@ -46,14 +46,14 @@
 
   <label for="provider">LLM 프로바이더</label>
   <select id="provider">
+    <option value="openai">내부 LLM (OpenAI 호환) — 기본</option>
     <option value="gemini">Gemini (Google AI)</option>
-    <option value="openai">내부 LLM (OpenAI 호환)</option>
   </select>
 
   <div class="warn" role="note">
-    <b>⚠ 문서 본문이 어디로 가는지 확인하세요.</b>
+    <b>⚠ 문서 본문이 어디로 가는지 확인하세요.</b> 기본값은 <b>내부 LLM</b>입니다.
     <ul>
-      <li><b>Gemini</b>를 고르면 요약 대상 문서의 <b>본문 전체가 Google 서버(국외)로 전송</b>됩니다.
+      <li><b>Gemini</b>로 바꾸면 요약 대상 문서의 <b>본문 전체가 Google 서버(국외)로 전송</b>됩니다.
         개인정보가 담긴 공문서·민원 문서에는 사용하지 마세요. 업무 문서를 외부 AI 서비스에
         보내는 것은 소속 기관의 정보보안·개인정보 처리 지침 위반일 수 있으니 먼저 확인하세요.
         무료 등급 API는 제출한 내용이 서비스 개선에 이용될 수 있습니다.</li>
@@ -64,7 +64,10 @@
 
   <label for="apiKey">API 키</label>
   <input type="password" id="apiKey" placeholder="AIza...">
-  <div class="hint">Gemini 키 발급: aistudio.google.com/apikey · 내부 LLM은 필요 시에만 입력</div>
+  <div class="hint">
+    Gemini 키 발급: aistudio.google.com/apikey · 내부 LLM은 필요 시에만 입력<br>
+    키는 프로바이더별로 따로 저장되며(전환해도 서로 전송되지 않음), 이 기기에만 보관됩니다.
+  </div>
 
   <label for="model">모델</label>
   <select id="model"></select>
@@ -74,12 +77,19 @@
   <div class="openai-only">
     <label for="baseUrl">내부 LLM Base URL</label>
     <input type="text" id="baseUrl" placeholder="http://localhost:11434">
-    <div class="hint">비워두면 로컬 Ollama(http://localhost:11434, API 키 불필요). 내부 서버는 주소 입력 (뒤에 /v1/chat/completions 자동 부착)</div>
+    <div class="hint">
+      비워두면 로컬 Ollama(http://localhost:11434, API 키 불필요). 내부 서버는 주소 입력 (뒤에 /v1/chat/completions 자동 부착).
+      원격 주소는 <b>https 권장</b> — 평문 http면 문서 본문과 키가 그대로 네트워크에 흐릅니다.
+    </div>
   </div>
 
   <label for="widgetHosts">✨ 플로팅 버튼 표시 주소 (그룹웨어)</label>
   <input type="text" id="widgetHosts" placeholder="cseoul.go.kr, gw.기관도메인.go.kr">
-  <div class="hint">쉼표로 구분, 호스트 부분 일치. 비워두면 기본(cseoul.go.kr)만. 변경 후 해당 페이지를 새로고침해야 적용됩니다 — 우클릭 메뉴·툴바 팝업은 주소와 무관하게 어디서나 동작</div>
+  <div class="hint">
+    쉼표로 구분. 정확한 호스트와 그 하위 도메인에만 적용됩니다(부분 문자열 매칭 아님).
+    저장할 때 해당 주소에 대한 <b>접근 권한을 요청</b>하며, 승인해야 버튼이 표시됩니다.
+    변경 후 해당 페이지를 새로고침해야 적용 — 우클릭 메뉴·툴바 팝업은 주소와 무관하게 어디서나 동작합니다.
+  </div>
 
   <button id="saveBtn">저장</button><button id="testBtn" class="ghost">연결 테스트</button><span id="saved"></span>
   <div class="hint" id="testResult"></div>
