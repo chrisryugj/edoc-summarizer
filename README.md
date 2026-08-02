@@ -106,6 +106,31 @@ Ollama 설치 확인(없으면 winget 설치) → **이 확장 ID에만** 접근
 - **검토 모드**: 결재 가능 여부 4단계 판정 + 잘된 점 / 보완점 / 결재 전 확인사항 — 원문에 있는
   내용만 근거로 검토하며, 근거 없는 지적·칭찬을 만들지 않도록 프롬프트로 강제
 
+## 문제 해결
+
+**연결 테스트에서 "API 키가 올바르지 않습니다"가 뜨는데 키 칸은 비어 있다**
+
+내부 LLM(Ollama)은 키를 쓰지 않으므로 키 문제가 아닙니다. Ollama가 확장의 오리진
+(`chrome-extension://…`)을 허용목록에 넣지 않아 **403**으로 끊은 것입니다 — Ollama의 기본
+허용목록에는 브라우저 확장이 들어 있지 않습니다.
+
+```powershell
+# 확장 ID 확인: edge://extensions → 이 확장의 ID(a~p 32자)
+powershell -ExecutionPolicy Bypass -File scripts\setup-local-llm.ps1 -ExtensionId <복사한ID>
+```
+
+이미 돌렸는데도 같은 증상이면 **환경변수가 지금 도는 Ollama 프로세스에 반영되지 않은 것**입니다.
+트레이의 Ollama 아이콘 → **Quit**(창만 닫으면 서버는 계속 돕니다) 후 스크립트를 다시 실행하세요.
+확인은 PowerShell에서:
+
+```powershell
+[Environment]::GetEnvironmentVariable("OLLAMA_ORIGINS","User")   # 확장 ID가 들어 있는지
+Invoke-WebRequest http://localhost:11434/v1/models -Headers @{Origin="chrome-extension://<확장ID>"} -UseBasicParsing
+```
+
+두 번째 명령이 200이면 정상, 403이면 아직 반영 전입니다. 확장을 **다른 폴더에서 다시 로드하면
+ID가 바뀌므로** 그때는 새 ID로 다시 실행해야 합니다.
+
 ## 로컬 모델 선택 가이드 (실측)
 
 RX 9060 8GB VRAM, 동일 공문 요약 기준 웜(모델 로드 후) 속도. 첫 호출은 로드로 +15초쯤.

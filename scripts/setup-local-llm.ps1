@@ -59,11 +59,17 @@ $cur = [Environment]::GetEnvironmentVariable("OLLAMA_ORIGINS", "User")
 if ($cur -split ',' -notcontains $origin) {
     $val = if ($cur) { "$cur,$origin" } else { $origin }
     [Environment]::SetEnvironmentVariable("OLLAMA_ORIGINS", $val, "User")
-    Write-Host "설정됨: $val (Ollama 재시작 후 적용)"
+    # 이 스크립트가 아래 3단계에서 Ollama를 다시 띄운다. Start-Process는 사용자 환경변수가 아니라
+    # **부모(이 프로세스)의 환경 블록**을 물려주므로, 현재 세션 값도 같이 갱신하지 않으면
+    # 새로 뜬 서버가 옛 환경(=허용목록 없음) 그대로 돌아 확장 요청을 403으로 끊는다.
+    $env:OLLAMA_ORIGINS = $val
+    Write-Host "설정됨: $val"
     # 재시작하여 즉시 적용 — 이름이 정확히 일치하는 프로세스만 (부분 일치는 무관한 프로세스를 죽인다)
     Get-Process -Name "ollama", "ollama app" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
     Start-Sleep -Seconds 3
 } else {
+    # 이 창이 환경변수 설정 이전에 열렸을 수 있다 — 여기서도 세션 값을 맞춰야 재기동한 서버가 물려받는다
+    $env:OLLAMA_ORIGINS = $cur
     Write-Host "이미 설정되어 있음: $cur"
 }
 
@@ -92,6 +98,20 @@ Step "검증"
 $models = (Invoke-RestMethod http://localhost:11434/v1/models).data | ForEach-Object { $_.id }
 Write-Host "설치된 모델: $($models -join ', ')"
 if ($models -notcontains $Model) { throw "모델이 목록에 없습니다." }
+
+# 확장이 실제로 쓰는 경로로 확인한다 — Origin 헤더 없이 부르면 CORS 거부가 안 잡혀
+# "설치 성공"이라고 찍고도 확장에서는 403이 난다.
+$probe = if ($ExtensionId) { "chrome-extension://$ExtensionId" } else { "chrome-extension://aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" }
+try {
+    Invoke-WebRequest "http://localhost:11434/v1/models" -Headers @{ Origin = $probe } -UseBasicParsing -TimeoutSec 5 | Out-Null
+    Write-Host "OK: 확장 오리진 허용 확인 ($probe)"
+} catch {
+    throw @"
+Ollama가 확장 오리진($probe) 요청을 거부했습니다 — 지금 도는 서버에 OLLAMA_ORIGINS가 반영되지 않았습니다.
+  1) 작업표시줄 트레이의 Ollama 아이콘 → Quit (창만 닫으면 서버는 계속 돕니다)
+  2) 이 스크립트를 다시 실행
+"@
+}
 
 Write-Host @"
 

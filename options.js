@@ -43,18 +43,23 @@ async function loadModels(selected) {
       hint = check.reason;
     } else {
       const base = (raw || 'http://localhost:11434').replace(/\/+$/, '');
+      let denied = false;
       try {
         const res = await fetch(`${base}/v1/models`, {
           // 내부 LLM 키만 보낸다 — Gemini 키가 임의 서버로 새지 않게
           headers: keys.openai ? { Authorization: `Bearer ${keys.openai}` } : {},
           signal: AbortSignal.timeout(8000),
         });
+        // Ollama는 OLLAMA_ORIGINS에 없는 오리진을 403으로 끊는다 — 서버 미기동과 구분해 안내한다
+        denied = res.status === 403;
         models = ((await res.json()).data || []).map((m) => m.id);
         hint = `${base} 서버의 설치 모델 ${models.length}개`;
       } catch { /* 서버 미기동 등 */ }
       if (!models.length) {
         models = OLLAMA_FALLBACK;
-        hint = '서버 조회 실패 — 기본 목록 표시 (Ollama 실행 여부 확인)';
+        hint = denied
+          ? `서버가 접근을 거부했습니다(403) — OLLAMA_ORIGINS에 chrome-extension://${chrome.runtime.id} 추가 후 Ollama 재시작`
+          : '서버 조회 실패 — 기본 목록 표시 (Ollama 실행 여부 확인)';
       }
     }
   }

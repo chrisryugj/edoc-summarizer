@@ -13,9 +13,22 @@ const HARD_MS = 120000;  // 요청 전체 최대 시간 (연결 수립 포함)
 
 // 응답 본문(detail)은 사용자 화면에 싣지 않는다 — 서버가 요청 헤더·내부 경로를 에코하는
 // 구성이면 그대로 노출되기 때문. 상세는 서비스워커 콘솔에만 남긴다.
-function apiError(status, body = '') {
+// hasKey=false(키 없이 쓰는 내부 LLM)면 401/403은 키 문제일 수 없다.
+// Ollama는 OLLAMA_ORIGINS 허용목록에 없는 오리진(chrome-extension://…)을 403으로 끊는다 —
+// 이걸 "API 키가 틀렸다"고 안내하면 키 칸이 빈 사용자가 고칠 수 없는 메시지가 된다.
+function apiError(status, body = '', { hasKey = true } = {}) {
   const detail = String(body).slice(0, 500);
   if (detail) console.warn(`[edoc] LLM API ${status}:`, detail);
+  if (!hasKey && status === 403) {
+    const id = chrome.runtime?.id;
+    return new Error(
+      `LLM 서버가 이 확장의 접근을 거부했습니다(403). Ollama라면 OLLAMA_ORIGINS에 `
+      + `chrome-extension://${id || '<확장ID>'} 를 추가하고 Ollama를 완전히 종료 후 다시 실행하세요.`
+    );
+  }
+  if (!hasKey && status === 401) {
+    return new Error('LLM 서버가 인증을 요구합니다(401) — ⚙ 설정에서 API 키를 입력하세요.');
+  }
   if (status === 401 || status === 403 || (status === 400 && /api.?key/i.test(detail))) {
     return new Error('API 키가 올바르지 않습니다 — ⚙ 설정에서 확인하세요.');
   }
@@ -96,7 +109,7 @@ async function callGemini(text, config, sys, onAccum, signal) {
     }),
     signal: withTimeout(signal),
   });
-  if (!res.ok) throw apiError(res.status, await res.text());
+  if (!res.ok) throw apiError(res.status, await res.text(), { hasKey: !!config.apiKey });
 
   const checkBlocked = (data) => {
     const blocked = data?.promptFeedback?.blockReason;
@@ -158,13 +171,14 @@ async function callOpenAI(text, config, sys, onAccum, signal) {
       body: JSON.stringify(body),
       signal: withTimeout(signal),
     });
+  const ctx = { hasKey: !!config.apiKey };
   let res = await call(payload);
   if (res.status === 400) {
     // 일부 서버는 response_format·reasoning_effort·chat_template_kwargs 미지원 — 빼고 재시도 (프롬프트가 JSON을 강제함)
     const { response_format, reasoning_effort, chat_template_kwargs, ...rest } = payload;
     res = await call(rest);
   }
-  if (!res.ok) throw apiError(res.status, await res.text());
+  if (!res.ok) throw apiError(res.status, await res.text(), ctx);
 
   if (!onAccum) {
     const data = await res.json();
@@ -187,7 +201,7 @@ async function callOpenAI(text, config, sys, onAccum, signal) {
   let acc = '';
   let finish = '';
   await readSse(res, (data) => {
-    if (data.error) throw apiError(Number(data.error.code) || 0, data.error.message || JSON.stringify(data.error));
+    if (data.error) throw apiError(Number(data.error.code) || 0, data.error.message || JSON.stringify(data.error), ctx);
     const ch = data.choices?.[0];
     if (ch?.finish_reason) finish = ch.finish_reason;
     const t = ch?.delta?.content ?? '';
@@ -449,6 +463,7 @@ function partialStatus(s) {
 // ── 옵션 페이지 연결 테스트: 모델 목록 + 초소형 실호출로 왕복 확인 ──
 export async function testConnection(config) {
   const signal = () => AbortSignal.timeout(20000); // 설정 화면은 짧게 끊는다
+  const ctx = { hasKey: !!config.apiKey };
   try {
     if (config.provider === 'gemini') {
       const model = config.model || 'gemini-flash-latest';
@@ -458,14 +473,14 @@ export async function testConnection(config) {
         body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: '응답은 OK 한 단어로만 하세요.' }] }] }),
         signal: signal(),
       });
-      if (!res.ok) throw apiError(res.status, await res.text());
+      if (!res.ok) throw apiError(res.status, await res.text(), ctx);
       const t = ((await res.json()).candidates?.[0]?.content?.parts?.[0]?.text || '').trim();
       return `연결 성공 (${model}${t ? ` → "${t.slice(0, 30)}"` : ''})`;
     }
     const base = (config.baseUrl || 'http://localhost:11434').replace(/\/+$/, '');
     const auth = config.apiKey ? { Authorization: `Bearer ${config.apiKey}` } : {};
     const mres = await fetch(`${base}/v1/models`, { headers: auth, signal: signal() });
-    if (!mres.ok) throw apiError(mres.status, await mres.text());
+    if (!mres.ok) throw apiError(mres.status, await mres.text(), ctx);
     const models = (((await mres.json()).data) || []).map((m) => m.id);
     const model = config.model || models[0];
     if (!model) throw new Error('서버에 설치된 모델이 없습니다.');
@@ -475,7 +490,7 @@ export async function testConnection(config) {
       body: JSON.stringify({ model, max_tokens: 8, messages: [{ role: 'user', content: '응답은 OK 한 단어로만 하세요.' }] }),
       signal: signal(),
     });
-    if (!cres.ok) throw apiError(cres.status, await cres.text());
+    if (!cres.ok) throw apiError(cres.status, await cres.text(), ctx);
     const t = ((await cres.json()).choices?.[0]?.message?.content || '').trim();
     return `연결 성공 — 설치 모델 ${models.length}개, ${model}${t ? ` → "${t.slice(0, 30)}"` : ''}`;
   } catch (e) {
