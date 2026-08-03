@@ -2,3 +2,6 @@ samples/
 *.local
 .DS_Store
 Thumbs.db
+
+# 설치 스크립트가 생성하는 로컬 실행 파일
+scripts/kordoc-helper.vbs

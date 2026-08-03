@@ -88,6 +88,7 @@ function syncCustomUI() {
 
 document.addEventListener('DOMContentLoaded', async () => {
   const c = await loadConfig();
+  $('autoPreview').checked = c.autoPreview;
   keys.gemini = c.geminiKey;
   keys.openai = c.localKey;
   shownProvider = c.provider;
@@ -129,6 +130,7 @@ function currentForm() {
     baseUrl: $('baseUrl').value.trim(),
     apiKey: keys[provider] || '',
     widgetHosts: $('widgetHosts').value.split(/[,\s]+/).map((s) => s.trim()).filter(Boolean),
+    autoPreview: $('autoPreview').checked,
   };
 }
 
@@ -198,6 +200,7 @@ $('saveBtn').addEventListener('click', async () => {
     model: form.model,
     baseUrl: form.baseUrl,
     widgetHosts: form.widgetHosts,
+    autoPreview: form.autoPreview,
     geminiKey: keys.gemini,
     localKey: keys.openai,
   });

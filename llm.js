@@ -311,15 +311,21 @@ function parseReview(raw) {
     const arr = (v) => (Array.isArray(v) ? v : [])
       .filter((x) => x && (x.content || x.title))
       .map((x) => ({ title: asText(x.title), content: asText(x.content) }));
+    // before가 비면 원문 대조가 불가능하므로 버린다
+    const typos = (Array.isArray(r.typos) ? r.typos : [])
+      .filter((x) => x && x.before && x.after)
+      .map((x) => ({ before: asText(x.before), after: asText(x.after), reason: asText(x.reason) }))
+      .filter((x) => x.before && x.after && x.before !== x.after);
     return {
       status: normalizeStatus(r.status),
       summary: asText(r.summary),
       strengths: arr(r.strengths),
       improvements: arr(r.improvements),
       checks: arr(r.checks),
+      typos,
     };
   } catch {
-    return { status: STATUS_UNKNOWN, summary: stripped.slice(0, 500), strengths: [], improvements: [], checks: [] };
+    return { status: STATUS_UNKNOWN, summary: stripped.slice(0, 500), strengths: [], improvements: [], checks: [], typos: [] };
   }
 }
 
@@ -422,6 +428,24 @@ function pObjArr(s, key) {
   return out;
 }
 
+// {"before":"...","after":"...","reason":"..."} 배열 — reason은 선택
+function pTypoArr(s) {
+  const m = /"typos"\s*:\s*\[/.exec(s);
+  if (!m) return [];
+  const seg = sliceArrayBody(s, m.index + m[0].length);
+  const out = [];
+  const re = /\{\s*"before"\s*:\s*"((?:[^"\\]|\\.)*)"\s*,\s*"after"\s*:\s*"((?:[^"\\]|\\.)*)"(?:\s*,\s*"reason"\s*:\s*"((?:[^"\\]|\\.)*)")?\s*\}/g;
+  let mm;
+  while ((mm = re.exec(seg))) {
+    out.push({
+      before: unescapeJson(mm[1]).trim(),
+      after: unescapeJson(mm[2]).trim(),
+      reason: unescapeJson(mm[3] || '').trim(),
+    });
+  }
+  return out.filter((t) => t.before && t.after && t.before !== t.after);
+}
+
 function parsePartial(acc, mode) {
   const s = stripFences(acc);
   if (mode === 'review') {
@@ -434,6 +458,7 @@ function parsePartial(acc, mode) {
       strengths: pObjArr(s, 'strengths'),
       improvements: pObjArr(s, 'improvements'),
       checks: pObjArr(s, 'checks'),
+      typos: pTypoArr(s),
     };
   }
   return {

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "전자문서 AI 요약",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "전자문서 본문을 추출해 LLM으로 요약·검토합니다. 문서 종류·핵심 내용·조치사항을 한눈에.",
   "action": {
     "default_popup": "popup.html",
@@ -9,7 +9,7 @@
   },
   "options_page": "options.html",
   "background": { "service_worker": "background.js", "type": "module" },
-  "permissions": ["activeTab", "scripting", "storage", "contextMenus"],
+  "permissions": ["activeTab", "scripting", "storage", "contextMenus", "debugger"],
   "optional_host_permissions": ["*://*/*"],
   "host_permissions": ["http://localhost/*", "http://127.0.0.1/*"]
 }

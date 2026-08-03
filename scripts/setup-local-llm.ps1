@@ -1,4 +1,4 @@
-# 전자문서 AI 요약 — 로컬 LLM(Ollama) 자동 설정 스크립트
+﻿# 전자문서 AI 요약 — 로컬 LLM(Ollama) 자동 설정 스크립트
 #
 # 하는 일:
 #   1. Ollama 설치 확인 (없으면 winget으로 설치)
@@ -16,6 +16,7 @@
 param(
     [string]$Model = "qwen3.5:9b",
     [string]$ExtensionId = "",
+    [int]$ContextLength = 8192,
     [switch]$AllowAnyExtension
 )
 
@@ -55,6 +56,7 @@ if ($ExtensionId -and $ExtensionId -notmatch '^[a-p]{32}$') {
     throw "확장 ID 형식이 올바르지 않습니다: $ExtensionId (a~p 32자여야 합니다)"
 }
 $origin = if ($ExtensionId) { "chrome-extension://$ExtensionId" } else { "chrome-extension://*" }
+$needRestart = $false
 $cur = [Environment]::GetEnvironmentVariable("OLLAMA_ORIGINS", "User")
 if ($cur -split ',' -notcontains $origin) {
     $val = if ($cur) { "$cur,$origin" } else { $origin }
@@ -64,13 +66,31 @@ if ($cur -split ',' -notcontains $origin) {
     # 새로 뜬 서버가 옛 환경(=허용목록 없음) 그대로 돌아 확장 요청을 403으로 끊는다.
     $env:OLLAMA_ORIGINS = $val
     Write-Host "설정됨: $val"
-    # 재시작하여 즉시 적용 — 이름이 정확히 일치하는 프로세스만 (부분 일치는 무관한 프로세스를 죽인다)
-    Get-Process -Name "ollama", "ollama app" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
-    Start-Sleep -Seconds 3
+    $needRestart = $true
 } else {
     # 이 창이 환경변수 설정 이전에 열렸을 수 있다 — 여기서도 세션 값을 맞춰야 재기동한 서버가 물려받는다
     $env:OLLAMA_ORIGINS = $cur
     Write-Host "이미 설정되어 있음: $cur"
+}
+
+# 2.5 컨텍스트 길이 — Ollama 기본 4096토큰은 시스템 프롬프트 + 본문 + 첨부 텍스트를 담기에 부족하다.
+# 넘치면 Ollama가 프롬프트 앞부분(지시·본문)을 조용히 잘라 "제목만 있고 내용이 빈" 요약이 나온다.
+Step "OLLAMA_CONTEXT_LENGTH 설정 (컨텍스트 $ContextLength 토큰)"
+$curCtx = [Environment]::GetEnvironmentVariable("OLLAMA_CONTEXT_LENGTH", "User")
+if ($curCtx -ne "$ContextLength") {
+    [Environment]::SetEnvironmentVariable("OLLAMA_CONTEXT_LENGTH", "$ContextLength", "User")
+    $env:OLLAMA_CONTEXT_LENGTH = "$ContextLength"
+    Write-Host "설정됨: $ContextLength (기존: $(if ($curCtx) { $curCtx } else { '기본 4096' }))"
+    $needRestart = $true
+} else {
+    $env:OLLAMA_CONTEXT_LENGTH = $curCtx
+    Write-Host "이미 설정되어 있음: $curCtx"
+}
+
+if ($needRestart) {
+    # 재시작하여 즉시 적용 — 이름이 정확히 일치하는 프로세스만 (부분 일치는 무관한 프로세스를 죽인다)
+    Get-Process -Name "ollama", "ollama app" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+    Start-Sleep -Seconds 3
 }
 
 # 3. 서버 기동 확인 (앱이 안 떠 있으면 실행)

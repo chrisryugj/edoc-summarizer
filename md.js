@@ -26,6 +26,10 @@ export function buildReviewMarkdown(v) {
   sec('잘 작성된 부분', v.strengths);
   sec('보완이 필요한 부분', v.improvements);
   sec('결재 전 확인사항', v.checks);
+  if (v.typos?.length) {
+    lines.push('\n## 오탈자·표기',
+      ...v.typos.map((t) => `- ~~${t.before}~~ → **${t.after}**${t.reason ? ` (${t.reason})` : ''}`));
+  }
   lines.push(`\n---\n_${new Date().toLocaleString('ko-KR')} · 전자문서 AI 검토 (AI 참고용 — 결재 판단 근거 아님)_`);
   return lines.join('\n');
 }

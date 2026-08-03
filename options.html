@@ -91,6 +91,17 @@
     변경 후 해당 페이지를 새로고침해야 적용 — 우클릭 메뉴·툴바 팝업은 주소와 무관하게 어디서나 동작합니다.
   </div>
 
+  <label style="display:flex; align-items:flex-start; gap:8px; font-weight:600;">
+    <input type="checkbox" id="autoPreview" style="width:auto; margin-top:4px;">
+    <span>첨부파일 자동 분석 (실험적)</span>
+  </label>
+  <div class="hint">
+    전자문서 첨부는 다운로드가 막혀 있어(보안문서 정책) 뷰어의 <b>간편 미리보기</b>로만 내용을 읽을 수 있습니다.
+    이 옵션을 켜면 확장이 첨부에 <b>우클릭 → 미리보기</b>를 대신 수행해 내용을 분석합니다.
+    동작 중 <b>"…에서 디버깅하고 있습니다" 알림 막대</b>가 잠시 표시됩니다(브라우저 디버거 API 사용).
+    끄면 첨부는 파일명만 요약에 반영됩니다. <b>저장</b>을 눌러야 적용됩니다.
+  </div>
+
   <button id="saveBtn">저장</button><button id="testBtn" class="ghost">연결 테스트</button><span id="saved"></span>
   <div class="hint" id="testResult"></div>
 

@@ -25,7 +25,7 @@ async function migrateLegacyKey(legacy, local, provider) {
 
 export async function loadConfig() {
   const [sync, local] = await Promise.all([
-    chrome.storage.sync.get(['provider', 'model', 'baseUrl', 'widgetHosts', 'apiKey']),
+    chrome.storage.sync.get(['provider', 'model', 'baseUrl', 'widgetHosts', 'apiKey', 'autoPreview']),
     chrome.storage.local.get(['geminiKey', 'localKey']),
   ]);
   // v0.2 이하의 기본 프로바이더는 gemini였다. provider를 저장한 적 없는 사용자가 남긴 키는
@@ -42,6 +42,8 @@ export async function loadConfig() {
     model: sync.model || '',
     baseUrl: sync.baseUrl || '',
     widgetHosts: hosts,
+    // 첨부 자동 분석(디버거로 미리보기 조작) — 명시적으로 켠 경우에만 동작한다
+    autoPreview: sync.autoPreview === true,
     geminiKey: keys.geminiKey,
     localKey: keys.localKey,
     // llm.js가 쓰는 실제 키 — 현재 프로바이더의 것만 넘어간다
@@ -49,8 +51,8 @@ export async function loadConfig() {
   };
 }
 
-export async function saveConfig({ provider, model, baseUrl, widgetHosts, geminiKey, localKey }) {
-  await chrome.storage.sync.set({ provider, model, baseUrl, widgetHosts });
+export async function saveConfig({ provider, model, baseUrl, widgetHosts, autoPreview, geminiKey, localKey }) {
+  await chrome.storage.sync.set({ provider, model, baseUrl, widgetHosts, autoPreview: !!autoPreview });
   await chrome.storage.local.set({ geminiKey, localKey });
   await chrome.storage.sync.remove('apiKey');
 }

@@ -79,7 +79,24 @@ export function renderOverlay(state) {
 
   let body = '';
   const hasResult = (!!state.result || !!state.review) && !partial;
-  if (state.status) body = `<div class="status"><span class="spin"></span>${esc(state.status)}</div>`;
+  if (state.ask) {
+    // 첨부 분석은 미리보기 조작이 필요해 시간이 걸린다 — 실행 전에 사용자가 고른다
+    const rows = state.ask.map((a) => {
+      const ok = /\.hwpx?$/i.test(a);
+      return `<li class="kv"><span class="kl${ok ? '' : ' r'}">${ok ? 'hwpx' : '미지원'}</span><span class="kt">${esc(a)}</span></li>`;
+    }).join('');
+    body = `
+      <div class="card">
+        <h2>첨부파일 ${state.ask.length}건</h2>
+        <ul>${rows}</ul>
+        <div class="askrow">
+          <button class="abtn primary" id="bWith">첨부까지 분석</button>
+          <button class="abtn" id="bWithout">본문만 요약</button>
+        </div>
+        <div class="disclaim">첨부 분석은 뷰어 미리보기를 거쳐 몇 초 더 걸립니다. hwpx만 지원합니다.</div>
+      </div>`;
+  }
+  else if (state.status) body = `<div class="status"><span class="spin"></span>${esc(state.status)}</div>`;
   else if (state.error) body = `<div class="status error">${esc(state.error)}</div>`;
   else if (state.review) {
     const v = state.review;
@@ -96,6 +113,15 @@ export function renderOverlay(state) {
         }).join('')}</ul></div>`
       : '');
     nextTxt.st = st;
+    // 오탈자: before → after (+이유 태그). 부분 파서가 완성된 객체만 주므로 타이핑 연출 없이 등장 애니메이션만.
+    const typoLis = (v.typos || []).map((t, n) => {
+      const k = 'ty-' + n;
+      nextTxt[k] = '1';
+      return `<li class="ty${isNew(k)}" data-k="${k}"><span class="tyb">${esc(t.before)}</span><span class="tya">${esc(t.after)}</span>${t.reason ? `<span class="tyr">${esc(t.reason)}</span>` : ''}</li>`;
+    }).join('');
+    const typoCard = typoLis
+      ? `<div class="card"><h2>오탈자·표기 <span class="cnt">${(v.typos || []).length}</span></h2><ul>${typoLis}</ul></div>`
+      : (!partial && Array.isArray(v.typos) ? '<div class="tynone">✓ 오탈자 없음</div>' : '');
     body = `
       <div class="card main">
         <div><span class="pill grade ${grade}${isNew('st')}">${esc(st || '검토 중…')}</span></div>
@@ -104,7 +130,10 @@ export function renderOverlay(state) {
       ${sec('act', '잘 작성된 부분', v.strengths, 'st-')}
       ${sec('', '보완이 필요한 부분', v.improvements, 'im-')}
       ${sec('warn', '결재 전 확인사항', v.checks, 'ck-')}
+      ${typoCard}
+      ${state.info ? `<div class="notice info">${esc(state.info)}</div>` : ''}
       ${state.warn ? `<div class="notice">⚠ ${esc(state.warn)}</div>` : ''}
+      ${state.meta ? `<div class="srcmeta">${esc(state.meta)}</div>` : ''}
       <div class="disclaim">AI가 원문만 보고 작성한 참고 자료입니다. 결재 판단의 근거로 삼지 마세요 — 문서 본문에 검토 결과를 조작하려는 문구가 섞여 있을 수 있습니다.</div>`;
   }
   else if (state.result) {
@@ -143,7 +172,9 @@ export function renderOverlay(state) {
       <div class="card"><h2>핵심 내용</h2><ul>${kvList(r.key_points, 'kp')}</ul></div>
       ${r.actions?.length ? `<div class="card act"><h2>조치 사항</h2><ul>${list(r.actions, 'ac')}</ul></div>` : ''}
       ${r.cautions?.length ? `<div class="card warn"><h2>주의</h2><ul>${list(r.cautions, 'ca')}</ul></div>` : ''}
+      ${state.info ? `<div class="notice info">${esc(state.info)}</div>` : ''}
       ${state.warn ? `<div class="notice">⚠ ${esc(state.warn)}</div>` : ''}
+      ${state.meta ? `<div class="srcmeta">${esc(state.meta)}</div>` : ''}
       <div class="disclaim">AI 생성 요약입니다. 기한·금액·문서번호는 원문에서 다시 확인하세요.</div>`;
   }
   // 스트리밍 진행 표시 — 부분 결과 아래에 생성 중 인디케이터
@@ -195,7 +226,11 @@ export function renderOverlay(state) {
         width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; flex: none;
         background: var(--grad); box-shadow: 0 0 8px rgba(8, 145, 178, .55);
       }
-      .head .t { font-weight: 800; font-size: 14px; letter-spacing: -.01em; color: var(--ink); }
+      /* 제목은 절대 줄바꿈하지 않는다 — 공간이 모자라면 말줄임 (버튼이 많아 좁은 화면·확대 시 3줄로 깨졌던 문제) */
+      .head .t {
+        font-weight: 800; font-size: 14px; letter-spacing: -.01em; color: var(--ink);
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 0 1 auto;
+      }
       .head .sp { flex: 1; }
       .src {
         flex: none; margin-left: 7px; padding: 2.5px 7px; border-radius: 6px;
@@ -293,6 +328,25 @@ export function renderOverlay(state) {
       .warn li { color: #A63A3E; }
       .warn li::before { background: var(--danger); }
       .notice { background: rgba(245, 166, 35, .1); color: #8A5A00; border-radius: 10px; padding: 8px 12px; font-size: .88em; }
+      .notice.info { background: rgba(10, 87, 208, .07); color: #1E4E9C; }
+      /* 오탈자: 취소선 원문 → 초록 수정안 + 이유 태그 */
+      li.ty { display: flex; flex-wrap: wrap; align-items: baseline; gap: 7px; padding-left: 0; }
+      li.ty::before { display: none; }
+      .tyb { color: var(--danger); text-decoration: line-through; text-decoration-thickness: 1px; }
+      .tya { color: #0E9F6E; font-weight: 700; }
+      .tya::before { content: '→ '; color: var(--ink3); font-weight: 400; }
+      .tyr { color: var(--ink3); font-size: .78em; background: rgba(11, 27, 51, .05); padding: 1.5px 7px; border-radius: 5px; }
+      .tynone { color: var(--ink3); font-size: .85em; padding: 0 4px; }
+      .askrow { display: flex; gap: 8px; margin: 12px 0 8px; }
+      .abtn {
+        all: initial; flex: 1; text-align: center; cursor: pointer; font-family: inherit;
+        font-size: .92em; font-weight: 700; padding: 9px 10px; border-radius: 10px;
+        background: rgba(11, 27, 51, .06); color: var(--ink2);
+      }
+      .abtn.primary { background: var(--grad); color: #fff; box-shadow: 0 2px 10px rgba(10, 87, 208, .3); }
+      .abtn:hover { filter: brightness(1.06); }
+      .srcmeta { color: var(--ink3); font-size: .76em; padding: 0 4px; word-break: break-all; }
+      .cnt { background: rgba(11, 27, 51, .07); color: var(--ink2); border-radius: 999px; padding: 1px 7px; font-size: .92em; }
       .status { display: flex; align-items: center; gap: 9px; padding: 14px 18px 16px; color: var(--ink2); }
       .status.error { color: var(--danger); word-break: break-all; }
       .spin {
@@ -355,6 +409,8 @@ export function renderOverlay(state) {
   };
 
   onClick('bClose', () => host.remove());
+  onClick('bWith', () => send({ type: 'edoc-attach-choice', include: true }));
+  onClick('bWithout', () => send({ type: 'edoc-attach-choice', include: false }));
   onClick('bSum', () => send({ type: 'edoc-summarize' }));
   onClick('bRev', () => send({ type: 'edoc-review' }));
   onClick('bRefresh', () => send({ type: mode === 'review' ? 'edoc-review' : 'edoc-summarize', force: true }));
